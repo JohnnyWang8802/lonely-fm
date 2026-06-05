@@ -25,9 +25,11 @@ export const profileFromSession = (session: Session): AuthProfile => ({
 
 export const sendEmailCode = async (email: string): Promise<void> => {
   if (!supabase) throw new Error("Supabase 尚未配置");
+  const emailRedirectTo =
+    typeof window === "undefined" ? undefined : `${window.location.origin}/setup`;
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { shouldCreateUser: true }
+    options: { shouldCreateUser: true, emailRedirectTo }
   });
   if (error) throw error;
 };

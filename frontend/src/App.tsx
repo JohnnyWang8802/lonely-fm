@@ -319,9 +319,9 @@ const LoginPage = () => {
       await sendEmailCode(normalizedEmail);
       setEmail(normalizedEmail);
       setCodeSent(true);
-      setStatus("6 位验证码已发送，请查看邮箱。");
+      setStatus("登录邮件已发送。收到 6 位验证码就输入；如果是登录链接，直接点开。");
     } catch {
-      setStatus("验证码发送失败，请稍后重试。");
+      setStatus("登录邮件发送失败，请稍后重试。");
     } finally {
       setSubmitting(false);
     }
@@ -329,7 +329,7 @@ const LoginPage = () => {
 
   const verifyCode = async () => {
     if (!/^\d{6}$/.test(code)) {
-      setStatus("请输入邮件中的 6 位验证码。");
+      setStatus("如果邮件里有 6 位验证码，请输入验证码；如果是登录链接，直接点开即可。");
       return;
     }
     setSubmitting(true);

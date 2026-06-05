@@ -9,6 +9,7 @@ import {
   LogOut,
   Mail,
   Mic2,
+  Phone,
   PhoneCall,
   Radio,
   RefreshCw,
@@ -722,7 +723,7 @@ const VoiceSelectPage = () => {
                   <>
                     <div className="voice-card-content">
                       <div className="voice-card-name-row">
-                        <Headphones className="voice-card-headphone-icon" size={24} />
+                        <PhoneCall className="voice-card-phone-icon" size={24} />
                         <h2>{voice.displayName}</h2>
                       </div>
                       <p className="voice-card-subtitle">{detail.subtitle}</p>
@@ -748,7 +749,7 @@ const VoiceSelectPage = () => {
                     </div>
                     <div className="voice-card-content">
                       <div className="voice-card-name-row">
-                        <Headphones className="voice-card-headphone-icon" size={24} />
+                        <PhoneCall className="voice-card-phone-icon" size={24} />
                         <h2>{voice.displayName}</h2>
                       </div>
                       <p className="voice-card-subtitle">{detail.subtitle}</p>
@@ -773,7 +774,7 @@ const VoiceSelectPage = () => {
                   }}
                   aria-label={`选择${voice.displayName}并开始对话`}
                 >
-                  <ArrowRight size={20} />
+                  <Phone size={20} />
                 </button>
               </div>
             );

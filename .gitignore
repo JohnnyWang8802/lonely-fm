@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.venv/
+.cache/
+.claude/
+.data/
+experiments/
+__pycache__/
+*.pyc
+*.tsbuildinfo
+.DS_Store
+.pytest_cache/
+.mypy_cache/

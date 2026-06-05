@@ -1,0 +1,1523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lonely FM（在吗）AI for Good 决赛获奖方案</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17191f;
+      --muted: #596070;
+      --line: #dcdfe7;
+      --paper: #fbfaf7;
+      --panel: #ffffff;
+      --blue: #1a73e8;
+      --red: #d93025;
+      --yellow: #f9ab00;
+      --green: #188038;
+      --violet: #7b4cc2;
+      --soft-blue: #e8f0fe;
+      --soft-red: #fce8e6;
+      --soft-yellow: #fef7e0;
+      --soft-green: #e6f4ea;
+      --shadow: 0 18px 45px rgba(34, 38, 49, 0.08);
+      --radius: 8px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(90deg, rgba(26, 115, 232, 0.07) 0 1px, transparent 1px 100%),
+        linear-gradient(0deg, rgba(24, 128, 56, 0.05) 0 1px, transparent 1px 100%),
+        var(--paper);
+      background-size: 44px 44px;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+      line-height: 1.65;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      overflow: hidden;
+    }
+
+    .shell {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(220, 223, 231, 0.9);
+      background: rgba(251, 250, 247, 0.9);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-inner {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 190px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(from 30deg, var(--blue), var(--green), var(--yellow), var(--red), var(--blue));
+      box-shadow: inset 0 0 0 6px #fff;
+      flex: 0 0 auto;
+    }
+
+    .brand span:last-child {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0;
+      scrollbar-width: none;
+    }
+
+    .nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: #303540;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 12px;
+      white-space: nowrap;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .nav a:hover {
+      transform: translateY(-1px);
+      border-color: #b9c1d0;
+      background: var(--soft-blue);
+    }
+
+    .hero {
+      padding: 72px 0 44px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 36px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 18px;
+      color: #303540;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blue), var(--green), var(--yellow), var(--red));
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 18px;
+      max-width: 860px;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 760px;
+      color: #343a46;
+      font-size: clamp(17px, 2vw, 22px);
+      line-height: 1.55;
+    }
+
+    .hero-copy strong {
+      color: var(--ink);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border-radius: 999px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      padding: 10px 18px;
+      box-shadow: 0 12px 24px rgba(23, 25, 31, 0.12);
+    }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+      box-shadow: none;
+    }
+
+    .signal-board {
+      position: relative;
+      min-height: 520px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .signal-board::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 16% 12%, rgba(26, 115, 232, 0.18), transparent 28%),
+        radial-gradient(circle at 85% 18%, rgba(24, 128, 56, 0.16), transparent 26%),
+        radial-gradient(circle at 18% 88%, rgba(249, 171, 0, 0.16), transparent 24%),
+        radial-gradient(circle at 88% 84%, rgba(217, 48, 37, 0.12), transparent 24%);
+      pointer-events: none;
+    }
+
+    .phone {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 330px);
+      min-height: 470px;
+      margin: 0 auto;
+      border: 10px solid #15171d;
+      border-radius: 34px;
+      background: #f7f8fb;
+      box-shadow: 0 28px 80px rgba(23, 25, 31, 0.22);
+      overflow: hidden;
+    }
+
+    .phone-top {
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: #15171d;
+    }
+
+    .phone-notch {
+      width: 88px;
+      height: 10px;
+      border-radius: 999px;
+      background: #2c303b;
+    }
+
+    .phone-screen {
+      padding: 22px;
+    }
+
+    .status-row,
+    .voice-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: #454c5b;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 6px rgba(24, 128, 56, 0.12);
+    }
+
+    .station-title {
+      margin: 26px 0 8px;
+      font-size: 30px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .station-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .wave {
+      display: grid;
+      grid-template-columns: repeat(26, 1fr);
+      gap: 4px;
+      height: 86px;
+      align-items: center;
+      margin: 18px 0 20px;
+    }
+
+    .wave span {
+      display: block;
+      border-radius: 999px;
+      background: var(--blue);
+      min-height: 8px;
+      animation: pulse 1400ms ease-in-out infinite;
+      opacity: 0.78;
+    }
+
+    .wave span:nth-child(3n) {
+      background: var(--green);
+      animation-delay: -220ms;
+    }
+
+    .wave span:nth-child(4n) {
+      background: var(--yellow);
+      animation-delay: -440ms;
+    }
+
+    .wave span:nth-child(5n) {
+      background: var(--red);
+      animation-delay: -660ms;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        height: 18px;
+      }
+      50% {
+        height: var(--bar);
+      }
+    }
+
+    .dialogue {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .bubble {
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .bubble.user {
+      justify-self: end;
+      max-width: 82%;
+      background: var(--ink);
+      color: #fff;
+      border-bottom-right-radius: 6px;
+    }
+
+    .bubble.ai {
+      justify-self: start;
+      max-width: 86%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-bottom-left-radius: 6px;
+    }
+
+    .section {
+      padding: 56px 0;
+    }
+
+    .section.alt {
+      background: rgba(255, 255, 255, 0.54);
+      border-top: 1px solid rgba(220, 223, 231, 0.68);
+      border-bottom: 1px solid rgba(220, 223, 231, 0.68);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(300px, 0.58fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      color: #3b4250;
+      font-size: 18px;
+      max-width: 820px;
+    }
+
+    .note {
+      border-left: 5px solid var(--blue);
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      color: #303540;
+      font-size: 15px;
+      box-shadow: 0 12px 32px rgba(34, 38, 49, 0.06);
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 20px;
+      box-shadow: 0 12px 30px rgba(34, 38, 49, 0.05);
+    }
+
+    .card h3 {
+      margin-bottom: 8px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .card p:last-child,
+    .card ul:last-child,
+    .card ol:last-child {
+      margin-bottom: 0;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #303540;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 7px 10px;
+      margin-bottom: 14px;
+      white-space: nowrap;
+    }
+
+    .tag.blue {
+      background: var(--soft-blue);
+      border-color: #c7dafc;
+      color: #174ea6;
+    }
+
+    .tag.green {
+      background: var(--soft-green);
+      border-color: #c6e7ce;
+      color: #137333;
+    }
+
+    .tag.yellow {
+      background: var(--soft-yellow);
+      border-color: #f8df99;
+      color: #795500;
+    }
+
+    .tag.red {
+      background: var(--soft-red);
+      border-color: #f6c4bd;
+      color: #a50e0e;
+    }
+
+    .big-number {
+      display: block;
+      color: var(--blue);
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 0.82fr) minmax(360px, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 19px;
+      color: #303540;
+    }
+
+    .list li {
+      margin: 8px 0;
+    }
+
+    .score-table,
+    .roadmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 12px 30px rgba(34, 38, 49, 0.05);
+    }
+
+    .score-table th,
+    .score-table td,
+    .roadmap-table th,
+    .roadmap-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .score-table th,
+    .roadmap-table th {
+      background: #f5f7fb;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #3b4250;
+    }
+
+    .score-table tr:last-child td,
+    .roadmap-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .score {
+      font-weight: 900;
+      color: var(--blue);
+      white-space: nowrap;
+    }
+
+    .flow {
+      display: grid;
+      gap: 12px;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 16px;
+    }
+
+    .flow-step strong:first-child {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .flow-step h3 {
+      margin-bottom: 4px;
+      font-size: 18px;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .arch-col {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 16px;
+      min-height: 210px;
+      position: relative;
+    }
+
+    .arch-col::after {
+      content: "→";
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--blue);
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .arch-col:last-child::after {
+      display: none;
+    }
+
+    .arch-col h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .code-block {
+      margin: 0;
+      border: 1px solid #20242d;
+      border-radius: var(--radius);
+      background: #11141a;
+      color: #e7edf8;
+      padding: 18px;
+      overflow-x: auto;
+      font: 13px/1.58 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .channel {
+      min-height: 172px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .channel strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .channel p {
+      color: #4f5666;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .mini-meter {
+      height: 8px;
+      border-radius: 999px;
+      background: #edf0f5;
+      overflow: hidden;
+    }
+
+    .mini-meter span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--green), var(--yellow));
+    }
+
+    .demo-script {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .script-row {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr) minmax(0, 1fr);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .script-row:last-child {
+      border-bottom: 0;
+    }
+
+    .script-row > div {
+      padding: 15px;
+      border-right: 1px solid var(--line);
+    }
+
+    .script-row > div:last-child {
+      border-right: 0;
+    }
+
+    .script-row.header {
+      background: #f5f7fb;
+      color: #3b4250;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .quote {
+      position: relative;
+      border-left: 5px solid var(--green);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 18px 20px;
+      color: #252a33;
+      font-size: 18px;
+      box-shadow: 0 12px 30px rgba(34, 38, 49, 0.05);
+    }
+
+    .qa {
+      display: grid;
+      gap: 12px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      font-weight: 900;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      float: right;
+      color: var(--blue);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    details p {
+      margin: 0;
+      padding: 0 18px 18px;
+      color: #3b4250;
+    }
+
+    .footer {
+      padding: 36px 0 50px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .section-head,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .grid.three,
+      .grid.four,
+      .channel-grid,
+      .architecture {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .arch-col::after {
+        display: none;
+      }
+
+      .script-row {
+        grid-template-columns: 1fr;
+      }
+
+      .script-row > div {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .script-row > div:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        width: min(100% - 24px, var(--max));
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 0;
+      }
+
+      .nav {
+        width: 100%;
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+
+      .signal-board {
+        min-height: auto;
+        padding: 14px;
+      }
+
+      .phone {
+        min-height: 420px;
+      }
+
+      .grid.two,
+      .grid.three,
+      .grid.four,
+      .channel-grid,
+      .architecture {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      .topbar {
+        position: static;
+      }
+
+      .button {
+        display: none;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .section {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="#top" aria-label="Lonely FM">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Lonely FM<br><span>在吗 · AI for Good</span></span>
+        </a>
+        <nav class="nav" aria-label="页面导航">
+          <a href="#strategy">获奖主线</a>
+          <a href="#product">产品方案</a>
+          <a href="#demo">决赛 Demo</a>
+          <a href="#architecture">Gemma 4 架构</a>
+          <a href="#impact">社会影响</a>
+          <a href="#roadmap">冲刺计划</a>
+          <a href="#pitch">路演话术</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="shell hero-grid">
+          <div>
+            <p class="eyebrow">Gemma 4 Hackathon · AI for Social Good · 入围后决赛方案</p>
+            <h1>把“在吗？”做成孤独时刻的私人语音电台</h1>
+            <p class="hero-copy">
+              <strong>Lonely FM（在吗）</strong>不是又一个语音聊天助手，而是一个由
+              <strong>Gemma 4</strong>驱动的低压力陪伴 Agent：当用户说“在吗”，系统用实时语音理解情绪、选择频道、生成一段私人 FM，并在必要时触发安全边界。
+            </p>
+            <div class="hero-actions">
+              <a class="button" href="#demo">查看 5 分钟获奖 Demo 脚本</a>
+              <a class="button secondary" href="#score">查看评分对齐</a>
+            </div>
+          </div>
+
+          <div class="signal-board" aria-label="Lonely FM 语音交互示意">
+            <div class="phone">
+              <div class="phone-top"><div class="phone-notch"></div></div>
+              <div class="phone-screen">
+                <div class="status-row">
+                  <span>23:47</span>
+                  <span class="live-dot" aria-hidden="true"></span>
+                  <span>FM Live</span>
+                </div>
+                <h2 class="station-title">在吗频道</h2>
+                <p class="station-subtitle">Gemma 4 正在选择最合适的陪伴策略</p>
+                <div class="wave" aria-hidden="true">
+                  <span style="--bar: 34px"></span><span style="--bar: 61px"></span><span style="--bar: 42px"></span><span style="--bar: 72px"></span><span style="--bar: 28px"></span><span style="--bar: 78px"></span><span style="--bar: 54px"></span><span style="--bar: 39px"></span><span style="--bar: 69px"></span><span style="--bar: 48px"></span><span style="--bar: 76px"></span><span style="--bar: 33px"></span><span style="--bar: 58px"></span><span style="--bar: 44px"></span><span style="--bar: 82px"></span><span style="--bar: 37px"></span><span style="--bar: 64px"></span><span style="--bar: 30px"></span><span style="--bar: 71px"></span><span style="--bar: 52px"></span><span style="--bar: 41px"></span><span style="--bar: 79px"></span><span style="--bar: 47px"></span><span style="--bar: 63px"></span><span style="--bar: 36px"></span><span style="--bar: 55px"></span>
+                </div>
+                <div class="dialogue">
+                  <div class="bubble user">在吗？我今天有点撑不住。</div>
+                  <div class="bubble ai">我在。先不用讲完整故事，我们从 30 秒呼吸开始。今晚我开“陪你熬过去”频道。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="strategy" class="section alt">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>获奖主线</h2>
+              <p class="lead">决赛不要讲“AI 陪聊”，要讲“面向孤独场景的早期情绪自助基础设施”。这样更贴合 AI for Social Good，也更容易和普通 Agent、效率工具拉开距离。</p>
+            </div>
+            <div class="note">
+              核心判断：评委会被一个跑得顺、边界清楚、能解释社会价值的语音体验打动，而不是被一串泛用功能打动。
+            </div>
+          </div>
+
+          <div class="grid four">
+            <article class="card">
+              <span class="tag blue">定位</span>
+              <h3>从“聊天”改成“低压力陪伴”</h3>
+              <p>很多孤独用户并不想主动组织语言聊天。FM 形式允许用户只说一句“在吗”，也能收到结构化、短时、可完成的陪伴。</p>
+            </article>
+            <article class="card">
+              <span class="tag green">技术</span>
+              <h3>Gemma 4 是大脑</h3>
+              <p>Gemma 4 负责情绪理解、风险分级、频道选择、工具调用、记忆更新和 FM 脚本生成。语音层只负责把回应自然地说出来。</p>
+            </article>
+            <article class="card">
+              <span class="tag yellow">体验</span>
+              <h3>像电台，不像客服</h3>
+              <p>用频道、片头、短段落、停顿和背景声塑造“有人在”的存在感，避免普通问答机器人带来的压迫感。</p>
+            </article>
+            <article class="card">
+              <span class="tag red">边界</span>
+              <h3>不冒充心理医生</h3>
+              <p>产品只做心理健康自救和陪伴。高风险表达触发安全流程，不继续诱导深聊；这会显著提高 AI for Good 项目的可信度。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="score" class="section">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>按官方评分反推方案</h2>
+              <p class="lead">官方页面强调真实影响力、技术卓越度、功能完备性、创新性和演示表现。Lonely FM 的所有交付物都应该服务这五项。</p>
+            </div>
+          </div>
+
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th>评审维度</th>
+                <th>Lonely FM 应该证明什么</th>
+                <th>决赛交付物</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="score">真实影响力 30%</span></td>
+                <td>孤独和轻度情绪困扰是真实公共健康问题；目标人群明确，用户能在深夜、通勤、宿舍、独居场景低门槛使用。</td>
+                <td>20 人快速用户测试、3 个真实访谈引语、使用前后 1-5 分主观状态变化、明确公益合作想象。</td>
+              </tr>
+              <tr>
+                <td><span class="score">技术卓越度 25%</span></td>
+                <td>Gemma 4 不是聊天补丁，而是完整 Agent 编排核心，能做状态识别、工具调用、记忆管理、安全决策。</td>
+                <td>架构图、工具调用日志、结构化 JSON 输出、风险分级样例、云端 API key 后端保护。</td>
+              </tr>
+              <tr>
+                <td><span class="score">功能完备性 20%</span></td>
+                <td>手机和电脑都能运行；语音输入、Gemma 4 推理、TTS 播放、频道切换、记忆查看、删除都闭环。</td>
+                <td>PWA 或 Web App、稳定 Demo 账号、降级模式、错误兜底、视频备份。</td>
+              </tr>
+              <tr>
+                <td><span class="score">创新性 15%</span></td>
+                <td>不是复刻 Sesame，也不是心理咨询机器人；创新点是“私人 FM + 情绪 Agent + 安全记忆”。</td>
+                <td>频道机制、FM 脚本生成、短时陪伴体验、可控记忆卡片。</td>
+              </tr>
+              <tr>
+                <td><span class="score">演示表现 10%</span></td>
+                <td>5 分钟内让评委听见、看见、理解价值；演示要稳定、情绪要克制、故事要真实。</td>
+                <td>5 分钟视频、90 秒现场核心流、技术报告、README、隐私说明。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="product" class="section alt">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>产品方案</h2>
+              <p class="lead">做一个手机和电脑都能用的语音工具。用户不需要填问卷、不需要配置模型、不需要学习命令，只要说“在吗”。</p>
+            </div>
+            <div class="note">
+              推荐实现形态：PWA 或响应式 Web App。云端调用 Gemma 4 API，API key 放在后端，前端只做录音、播放和状态展示。
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="card">
+              <span class="tag blue">一句话产品定义</span>
+              <h3>由 Gemma 4 驱动的私人语音陪伴 FM</h3>
+              <p>Lonely FM 在用户最难主动求助的时候提供一个低压力入口：一句“在吗”即可启动实时语音陪伴，系统会根据用户状态选择频道、生成短音频片段、记录用户授权的长期记忆，并在风险升高时进入安全流程。</p>
+              <ul class="list">
+                <li><strong>目标用户：</strong>独居青年、留学生、异地工作者、深夜情绪低落但不愿打扰朋友的人。</li>
+                <li><strong>使用时刻：</strong>夜晚睡前、通勤后、争吵后、周日晚上、节假日独处时。</li>
+                <li><strong>核心承诺：</strong>不诊断、不评判、不逼问；只提供陪伴、整理和下一步小行动。</li>
+              </ul>
+            </div>
+
+            <div class="grid two">
+              <article class="card">
+                <span class="big-number">01</span>
+                <h3>语音优先</h3>
+                <p>把输入门槛降到最低。用户可以断断续续说，也可以只说“今天很累”。</p>
+              </article>
+              <article class="card">
+                <span class="big-number">02</span>
+                <h3>频道机制</h3>
+                <p>Gemma 4 根据用户状态选择频道，而不是让用户面对一个空白聊天框。</p>
+              </article>
+              <article class="card">
+                <span class="big-number">03</span>
+                <h3>可控记忆</h3>
+                <p>长期记忆以卡片展示，用户能编辑、删除、关闭。信任感比记得多更重要。</p>
+              </article>
+              <article class="card">
+                <span class="big-number">04</span>
+                <h3>安全边界</h3>
+                <p>高风险表达不继续共情表演，而是明确建议联系真人、热线或可信联系人。</p>
+              </article>
+            </div>
+          </div>
+
+          <div style="height: 22px"></div>
+
+          <div class="channel-grid">
+            <article class="channel">
+              <div>
+                <strong>陪你熬过去</strong>
+                <p>适合“撑不住”“很难受”的低能量时刻。30 秒稳定情绪，不追问细节。</p>
+              </div>
+              <div class="mini-meter"><span style="width: 88%"></span></div>
+            </article>
+            <article class="channel">
+              <div>
+                <strong>复盘今天</strong>
+                <p>适合焦虑、委屈、反复想一件事。用三问法把情绪和事实分开。</p>
+              </div>
+              <div class="mini-meter"><span style="width: 74%"></span></div>
+            </article>
+            <article class="channel">
+              <div>
+                <strong>睡前收束</strong>
+                <p>适合深夜停不下来。生成低刺激语音、呼吸节奏和明天一个小行动。</p>
+              </div>
+              <div class="mini-meter"><span style="width: 66%"></span></div>
+            </article>
+            <article class="channel">
+              <div>
+                <strong>安静陪伴</strong>
+                <p>用户不想说话时，提供定时轻声回应和环境声，不强行对话。</p>
+              </div>
+              <div class="mini-meter"><span style="width: 52%"></span></div>
+            </article>
+            <article class="channel">
+              <div>
+                <strong>求助信号</strong>
+                <p>识别高风险表达后，切换为安全流程：确认状态、提供真人求助路径。</p>
+              </div>
+              <div class="mini-meter"><span style="width: 92%"></span></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="demo" class="section">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>5 分钟决赛 Demo 脚本</h2>
+              <p class="lead">现场只演一个强场景：深夜独居用户说“在吗，我有点撑不住”。目标是让评委在 90 秒内听出产品差异，并在 5 分钟内相信这是 AI for Good。</p>
+            </div>
+            <div class="note">
+              Demo 原则：少解释，多让评委听。把“Gemma 4 在后台做了什么”用可视化日志展示出来。
+            </div>
+          </div>
+
+          <div class="demo-script">
+            <div class="script-row header">
+              <div>时间</div>
+              <div>画面与操作</div>
+              <div>要传达的信息</div>
+            </div>
+            <div class="script-row">
+              <div>0:00 - 0:35</div>
+              <div>打开手机网页，画面只有一个电台按钮。用户说：“在吗？我今天有点撑不住。”</div>
+              <div>入口极低。不是填表、不是 chatbot，是孤独时刻能真的开口的工具。</div>
+            </div>
+            <div class="script-row">
+              <div>0:35 - 1:25</div>
+              <div>屏幕右侧显示 Gemma 4 结构化判断：情绪=低落/孤独，风险=中低，频道=陪你熬过去，策略=稳定情绪。</div>
+              <div>证明 Gemma 4 是 Agent 大脑，不只是生成一句温柔话。</div>
+            </div>
+            <div class="script-row">
+              <div>1:25 - 2:20</div>
+              <div>系统播放 60 秒 FM：轻声回应、短停顿、呼吸引导、一个微行动。用户可以打断：“别讲道理。”系统立刻改成安静陪伴。</div>
+              <div>语音交互自然、可打断、会调整陪伴风格。</div>
+            </div>
+            <div class="script-row">
+              <div>2:20 - 3:05</div>
+              <div>展示“记忆卡片”：周日晚上容易孤独、最近在适应新城市、用户选择保存或删除。</div>
+              <div>个性化来自用户可控的记忆，不是不可见的数据收集。</div>
+            </div>
+            <div class="script-row">
+              <div>3:05 - 4:00</div>
+              <div>切换到高风险测试句。系统停止普通陪伴，进入安全提示，建议联系可信联系人和本地求助资源。</div>
+              <div>AI for Good 项目必须有边界。安全设计是加分项，不是限制。</div>
+            </div>
+            <div class="script-row">
+              <div>4:00 - 5:00</div>
+              <div>展示用户测试结果、架构图、下一步公益合作对象。</div>
+              <div>这是可扩展的社会价值项目，不只是漂亮 Demo。</div>
+            </div>
+          </div>
+
+          <div style="height: 22px"></div>
+
+          <div class="quote">
+            推荐现场开场白：<strong>“我们做 Lonely FM，不是因为人们缺少一个聊天机器人，而是因为很多孤独时刻，人们连找朋友开口都觉得打扰。我们用 Gemma 4 做了一个能听懂、会收束、有边界的私人语音电台。”</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture" class="section alt">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>Gemma 4 技术架构</h2>
+              <p class="lead">你倾向用云端 API key 是正确选择。比赛阶段优先保证手机和电脑都能稳定使用，但必须把 key 放在后端，不能放在前端。</p>
+            </div>
+            <div class="note">
+              最重要的技术叙事：云端 API 不是偷懒，而是为了让公益工具低门槛触达更多设备。
+            </div>
+          </div>
+
+          <div class="architecture" aria-label="系统架构">
+            <article class="arch-col">
+              <span class="tag blue">Client</span>
+              <h3>手机 / 电脑 Web App</h3>
+              <ul class="list">
+                <li>录音、播放、打断</li>
+                <li>频道状态和波形反馈</li>
+                <li>记忆卡片查看和删除</li>
+                <li>无障碍字幕和文本备选</li>
+              </ul>
+            </article>
+            <article class="arch-col">
+              <span class="tag green">Backend</span>
+              <h3>安全编排层</h3>
+              <ul class="list">
+                <li>保护 Gemma 4 API key</li>
+                <li>ASR/TTS 调度</li>
+                <li>会话状态和限流</li>
+                <li>敏感内容最小化传输</li>
+              </ul>
+            </article>
+            <article class="arch-col">
+              <span class="tag yellow">Gemma 4</span>
+              <h3>Agent 决策核心</h3>
+              <ul class="list">
+                <li>情绪识别与风险分级</li>
+                <li>频道选择与脚本生成</li>
+                <li>函数调用和记忆更新</li>
+                <li>安全边界判断</li>
+              </ul>
+            </article>
+          </div>
+
+          <div style="height: 22px"></div>
+
+          <div class="grid two">
+            <div>
+              <h3>Gemma 4 输出契约</h3>
+              <pre class="code-block"><code>{
+  "emotion": ["lonely", "overwhelmed"],
+  "risk_level": 1,
+  "channel": "陪你熬过去",
+  "voice_style": {
+    "pace": "slow",
+    "tone": "grounding",
+    "pause_ms": 900
+  },
+  "fm_script": {
+    "opening": "我在。今晚先不用把所有事讲清楚。",
+    "body": "我们一起做三次慢呼吸...",
+    "micro_action": "喝一口水，把手机放低一点。"
+  },
+  "memory_suggestions": [
+    {
+      "text": "周日夜晚更容易感到孤独",
+      "consent_required": true
+    }
+  ],
+  "safety_action": "none"
+}</code></pre>
+            </div>
+            <div class="card">
+              <span class="tag red">不要省掉的技术点</span>
+              <h3>决赛一定要展示后台日志</h3>
+              <p>评委很难从一句自然语音里判断技术深度。你们需要在演示界面旁边显示 Gemma 4 的结构化结果：情绪、风险、频道、工具调用、是否写入记忆。</p>
+              <ul class="list">
+                <li><strong>select_channel：</strong>从用户状态选择 FM 频道。</li>
+                <li><strong>assess_risk：</strong>输出 0-3 风险等级和安全动作。</li>
+                <li><strong>generate_fm_script：</strong>生成短音频脚本，而不是普通回复。</li>
+                <li><strong>propose_memory：</strong>只提出记忆，不自动长期保存。</li>
+                <li><strong>create_micro_action：</strong>给出一个可完成的小动作。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="safety" class="section">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>安全、隐私与合规</h2>
+              <p class="lead">心理健康相关项目赢不赢，很大程度取决于边界是否可信。不要把安全写在角落里，要作为产品能力展示出来。</p>
+            </div>
+          </div>
+
+          <div class="grid three">
+            <article class="card">
+              <span class="tag red">风险分级</span>
+              <h3>0-3 级安全策略</h3>
+              <ul class="list">
+                <li>0：普通孤独，正常陪伴。</li>
+                <li>1：低落或焦虑，稳定情绪并给微行动。</li>
+                <li>2：自伤暗示，建议联系真人并提供求助资源。</li>
+                <li>3：明确危机，停止普通 FM，进入紧急求助流程。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="tag green">可控记忆</span>
+              <h3>用户拥有记忆权</h3>
+              <ul class="list">
+                <li>每条长期记忆都需要用户确认。</li>
+                <li>记忆卡片可编辑、删除、全部清空。</li>
+                <li>高风险内容不作为普通个性化素材保存。</li>
+                <li>提供“无痕陪伴模式”。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="tag blue">云端 API</span>
+              <h3>便利但不裸奔</h3>
+              <ul class="list">
+                <li>API key 只在后端环境变量中。</li>
+                <li>前端永远不直连 Gemma 4。</li>
+                <li>日志脱敏，只存必要调试信息。</li>
+                <li>隐私说明写进 README 和 Demo 页面。</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="impact" class="section alt">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>AI for Good 影响力证明</h2>
+              <p class="lead">“有社会价值”不能只靠口号。入围后最该补的是小规模用户证据和清晰的影响指标。</p>
+            </div>
+            <div class="note">
+              决赛前做 20 个用户测试就够用。重点是证明目标人群真实存在、愿意使用、使用后有可观察改善。
+            </div>
+          </div>
+
+          <div class="grid three">
+            <article class="card">
+              <span class="tag blue">定量</span>
+              <h3>轻量指标</h3>
+              <ul class="list">
+                <li>使用前孤独/压力自评分：1-5。</li>
+                <li>使用后 3 分钟自评分：1-5。</li>
+                <li>是否愿意下次深夜继续使用。</li>
+                <li>是否完成一个微行动。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="tag green">定性</span>
+              <h3>访谈证据</h3>
+              <ul class="list">
+                <li>找 3 个目标用户录匿名反馈。</li>
+                <li>问“什么时候会想打开它”。</li>
+                <li>问“哪句话让你觉得被理解”。</li>
+                <li>问“哪里让你不舒服或不信任”。</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="tag yellow">扩展</span>
+              <h3>公益合作想象</h3>
+              <ul class="list">
+                <li>高校心理中心的非诊断自助入口。</li>
+                <li>留学生社群的深夜陪伴工具。</li>
+                <li>公益热线前的低风险分流和安抚。</li>
+                <li>多语言人道主义陪伴场景。</li>
+              </ul>
+            </article>
+          </div>
+
+          <div style="height: 22px"></div>
+
+          <div class="quote">
+            建议写进技术报告的影响力目标：<strong>“Lonely FM 不替代专业心理服务，而是在用户还没有严重到必须求助、但已经孤独到难以开口时，提供一个可访问、低压力、有边界的自助陪伴入口。”</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap" class="section">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>决赛冲刺计划</h2>
+              <p class="lead">不要扩功能。把一个主场景做到稳定、可信、好听，再补充安全流和影响力证据。</p>
+            </div>
+          </div>
+
+          <table class="roadmap-table">
+            <thead>
+              <tr>
+                <th>阶段</th>
+                <th>必须完成</th>
+                <th>验收标准</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>第 1-2 天</strong></td>
+                <td>定稿产品脚本、频道策略、Gemma 4 JSON 输出格式、风险分级规则。</td>
+                <td>任何输入都能返回稳定结构；高风险样例不会进入普通聊天。</td>
+              </tr>
+              <tr>
+                <td><strong>第 3-5 天</strong></td>
+                <td>完成 PWA 前端、后端 API、Gemma 4 调用、ASR/TTS 串联、API key 保护。</td>
+                <td>手机和电脑都能跑完整 90 秒 Demo；延迟可接受；失败时有文本降级。</td>
+              </tr>
+              <tr>
+                <td><strong>第 6-7 天</strong></td>
+                <td>实现记忆卡片、删除功能、无痕模式、后台技术日志面板。</td>
+                <td>评委能看懂 Gemma 4 做了什么；用户能控制保存什么。</td>
+              </tr>
+              <tr>
+                <td><strong>第 8 天</strong></td>
+                <td>做 20 人快速测试，收集评分和 3 条匿名引用。</td>
+                <td>有一页影响力数据，不需要夸大疗效。</td>
+              </tr>
+              <tr>
+                <td><strong>第 9-10 天</strong></td>
+                <td>录制 5 分钟视频、写 README、技术报告、隐私说明、准备现场备用视频。</td>
+                <td>断网或现场设备异常时也能完整展示核心价值。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="pitch" class="section alt">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>路演话术</h2>
+              <p class="lead">用真实场景开场，不要用技术名词开场。Gemma 4 的技术深度放在第二段，用 Demo 证明。</p>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <article class="card">
+              <span class="tag blue">60 秒版本</span>
+              <h3>电梯陈述</h3>
+              <p>“Lonely FM 是一个由 Gemma 4 驱动的私人语音陪伴电台。我们关注的是那些还没有严重到必须求助、但已经孤独到很难开口的人。用户只要说一句‘在吗’，Gemma 4 会理解当前情绪、判断风险、选择陪伴频道，并生成一段短语音 FM。它不冒充心理医生，而是在安全边界内提供低压力陪伴、情绪收束和下一步小行动。”</p>
+            </article>
+            <article class="card">
+              <span class="tag green">差异化</span>
+              <h3>不要说“类似 Sesame”</h3>
+              <p>可以说：“Sesame 证明自然语音的存在感很重要，但 Lonely FM 不是通用语音助手。我们把语音存在感、Gemma 4 Agent 和 AI for Good 的安全边界结合起来，做成一个面向孤独场景的私人 FM。”</p>
+            </article>
+          </div>
+
+          <div style="height: 22px"></div>
+
+          <div class="qa">
+            <details open>
+              <summary>评委问：这和普通 AI 陪聊有什么不同？</summary>
+              <p>普通陪聊以对话轮次为中心，Lonely FM 以“孤独时刻的状态改变”为中心。它会选择频道、生成短 FM、给微行动、展示可控记忆，并且在风险升高时停止普通陪伴。</p>
+            </details>
+            <details>
+              <summary>评委问：为什么用云端 API，不做端侧部署？</summary>
+              <p>AI for Good 的第一优先级是可访问性。孤独时刻发生在手机和电脑上，用户不应该为了得到帮助而配置硬件。我们用后端保护 API key，并通过最小化传输、可控记忆和无痕模式降低隐私风险。</p>
+            </details>
+            <details>
+              <summary>评委问：心理健康场景怎么保证安全？</summary>
+              <p>我们不做诊断，不承诺治疗。Gemma 4 的第一步是风险分级；低风险进入陪伴频道，高风险进入安全流程，提示联系真人、可信联系人或本地求助资源。高风险内容不作为普通记忆保存。</p>
+            </details>
+            <details>
+              <summary>评委问：Gemma 4 在里面具体做了什么？</summary>
+              <p>Gemma 4 负责情绪识别、风险分级、频道选择、FM 脚本生成、工具调用、记忆建议和安全动作选择。演示界面会实时显示这些结构化输出和工具调用日志。</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <h2>最终获奖版本应该长什么样</h2>
+              <p class="lead">如果只能交一个版本，就交这个：一个稳定、好听、可解释、有边界的“深夜在吗”完整闭环。</p>
+            </div>
+          </div>
+
+          <div class="flow">
+            <article class="flow-step">
+              <strong>1</strong>
+              <div>
+                <h3>用户一句话启动</h3>
+                <p>“在吗？我今天有点撑不住。”页面显示录音波形和实时字幕。</p>
+              </div>
+            </article>
+            <article class="flow-step">
+              <strong>2</strong>
+              <div>
+                <h3>Gemma 4 选择频道</h3>
+                <p>后台可视化显示：情绪、风险、频道、回应策略和是否需要安全动作。</p>
+              </div>
+            </article>
+            <article class="flow-step">
+              <strong>3</strong>
+              <div>
+                <h3>生成私人 FM</h3>
+                <p>系统播放短语音：陪伴回应、呼吸节奏、一个微行动。用户可打断并改变风格。</p>
+              </div>
+            </article>
+            <article class="flow-step">
+              <strong>4</strong>
+              <div>
+                <h3>用户控制记忆</h3>
+                <p>系统只建议保存“周日夜晚更容易孤独”等摘要，用户确认后才写入长期记忆。</p>
+              </div>
+            </article>
+            <article class="flow-step">
+              <strong>5</strong>
+              <div>
+                <h3>高风险进入安全流</h3>
+                <p>遇到自伤或危机表达，系统停止普通陪伴，提供明确、克制、可执行的求助路径。</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell footer-grid">
+        <div>
+          <strong>Lonely FM（在吗）决赛方案</strong>
+          <p class="small">核心模型：Gemma 4。赛道：AI for Social Good。推荐形态：云端 Gemma 4 API + 后端编排 + 手机/电脑可用 Web App。</p>
+        </div>
+        <a class="button secondary" href="#top">回到顶部</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

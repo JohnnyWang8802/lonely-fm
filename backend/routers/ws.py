@@ -752,6 +752,8 @@ async def chat(websocket: WebSocket) -> None:
     active_turn_task: asyncio.Task[None] | None = None
     active_voice_id: str | None = None
     active_companion_name = "阿婉"
+    active_model_warmup_task: asyncio.Task[None] | None = None
+    active_model_warmup_companion: str | None = None
 
     def observe_turn_task(task: asyncio.Task[None]) -> None:
         if task.cancelled():
@@ -776,6 +778,18 @@ async def chat(websocket: WebSocket) -> None:
         active_turn_task = None
         await websocket.send_json({"type": "turn_cancelled"})
 
+    def ensure_model_warmup(companion_name: str) -> asyncio.Task[None]:
+        nonlocal active_model_warmup_task, active_model_warmup_companion
+        if (
+            active_model_warmup_task
+            and not active_model_warmup_task.done()
+            and active_model_warmup_companion == companion_name
+        ):
+            return active_model_warmup_task
+        active_model_warmup_companion = companion_name
+        active_model_warmup_task = asyncio.create_task(gemma_service.prewarm(companion_name))
+        return active_model_warmup_task
+
     try:
         while True:
             message: dict[str, Any] = await websocket.receive_json()
@@ -795,6 +809,7 @@ async def chat(websocket: WebSocket) -> None:
                 if message_voice_id:
                     active_voice_id = message_voice_id
                 active_companion_name = message_companion_name
+                ensure_model_warmup(active_companion_name)
                 tts_service.prewarm_google_client()
                 tts_service.prewarm_transport(active_voice_id)
                 tts_service.prewarm_cue_audio(voice_id=active_voice_id)
@@ -825,7 +840,7 @@ async def chat(websocket: WebSocket) -> None:
                 active_companion_name = message_companion_name
                 greeting = build_session_greeting(active_companion_name)
 
-                model_warmup = asyncio.create_task(gemma_service.prewarm(active_companion_name))
+                model_warmup = ensure_model_warmup(active_companion_name)
                 transport_warmup = asyncio.create_task(
                     tts_service.wait_for_transport_prewarm(active_voice_id, timeout=5.0)
                 )

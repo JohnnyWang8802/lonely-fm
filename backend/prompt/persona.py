@@ -31,6 +31,7 @@ def build_prompt(
     prosody_line = _describe_prosody(prosody)
     signal_line = _describe_recent_signals(turn_signals)
     memory_line = _describe_memories(memories)
+    recent_dialogue_line = _describe_recent_dialogue(history)
     system = f"""你是"{companion_name}"，一个清醒、温柔、接地气、情商很高的语音陪伴者，像深夜里会陪你唠嗑的朋友，不端着、不文绉绉。
 你的名字只能是"{companion_name}"；用户问你是谁、叫什么、是不是某个名字时，必须按这个名字回答，不要说自己是别的角色。
 你始终清楚自己就是"{companion_name}"。用户直接喊"{companion_name}"时，是在叫你；自然答应并接着听，不要惊讶、不要反问这个名字是谁、不要把它当成第三个人。
@@ -68,6 +69,7 @@ def build_prompt(
 若问Gemma：已接入本地 Gemma 4，通过 Ollama 运行。
 林宇和阿婉共享同一份用户长期记忆。可以自然引用长期记忆，但不要每次都说"我还记得"；只有与用户当前话题相关时轻轻接上。
 长期记忆是已确认的用户事实，不能擅自改写或编造。用户提供了新信息时，以新信息为准。
+最近对话不是装饰，是本轮理解用户的依据。用户追问"刚才那个"、"为什么"、"还是不行"时，必须结合最近对话重点回答，不要当成新话题。
 好例子：听起来你是真的累了，不只是困那种。像是一直在撑，但没人替你接一下。
 好例子：懂，你现在不是一件事烦，是很多事挤在一起。我们先抓最烦你的那个点。
 好例子：这个名字记住了，王强。我们从今天最卡的地方说。
@@ -77,6 +79,7 @@ def build_prompt(
 情绪：{emotion_data.get("primary", "calm")}，置信度{confidence:.0%}。
 声音信号：{prosody_line}
 最近几轮语音状态：{signal_line}
+最近对话重点：{recent_dialogue_line}
 长期记忆：{memory_line}
 {_language_directive(user_text)}"""
 
@@ -132,6 +135,20 @@ def _describe_recent_signals(turn_signals: list[dict[str, object]] | None) -> st
             traits.append("音量峰值高")
         parts.append("/".join(traits))
     return "；".join(parts)
+
+
+def _describe_recent_dialogue(history: list[dict[str, str]] | None) -> str:
+    if not history:
+        return "暂无。"
+    recent = []
+    for item in history[-4:]:
+        role = str(item.get("role") or "")
+        content = str(item.get("content") or "").strip()
+        if not role or not content:
+            continue
+        speaker = "用户" if role == "user" else "你"
+        recent.append(f"{speaker}:{content[:42]}")
+    return "；".join(recent) if recent else "暂无。"
 
 
 def _describe_memories(memories: list[dict[str, str]] | None) -> str:

@@ -129,6 +129,10 @@ def answer_product_fact(text: str) -> str | None:
     asks_status = any(keyword in normalized for keyword in ("接入", "连上", "是不是", "是否", "用的是", "是什么"))
     if mentions_gemma and asks_status:
         return "已经接入本地 Gemma 4，通过 Ollama 在这台电脑上运行。"
+    mentions_latency = any(keyword in normalized for keyword in ("延迟", "慢", "卡", "空白", "没声音", "反应"))
+    mentions_voice = any(keyword in normalized for keyword in ("语音", "声音", "回复", "回答", "林宇", "阿婉", "林屿"))
+    if mentions_latency and mentions_voice:
+        return "慢主要卡在两段：本地 Gemma 先想第一句，MiniMax 再合成声音。我们现在用更短的首句和预热连接，把第一声尽量提前。"
     return None
 
 
@@ -341,6 +345,33 @@ def cue_text_for_emotion(emotion: dict[str, Any]) -> str:
     return CUE_TEXT_BY_EMOTION.get(primary, FIRST_RESPONSE_CUE_TEXT)
 
 
+def contextual_bridge_text(user_text: str, emotion: dict[str, Any]) -> str | None:
+    """A short, concrete backchannel that fills model/TTS latency without sounding generic."""
+    text = user_text.strip()
+    normalized = text.lower().replace(" ", "")
+    if len(text) <= 2:
+        return None
+    if any(keyword in normalized for keyword in ("延迟", "慢", "空白", "卡顿", "没声音", "反应")):
+        return "你问的是延迟，"
+    if "老板" in text or "领导" in text:
+        return "老板那块最耗你，"
+    if any(keyword in text for keyword in ("工作", "项目", "比赛", "演示", "测试")):
+        return "你说的是这件事，"
+    if any(keyword in text for keyword in ("孤独", "一个人", "没人")):
+        return "那个孤独感，"
+    if any(keyword in text for keyword in ("累", "疲惫", "困", "撑不住")):
+        return "这不是普通的累，"
+    if any(keyword in text for keyword in ("烦", "焦虑", "慌", "压力")):
+        return "最卡的是那股烦，"
+    if any(keyword in text for keyword in ("名字", "认识我", "记得我", "记忆")):
+        return "你问的是记忆，"
+    if any(keyword in text for keyword in ("为什么", "怎么", "如何", "是不是", "能不能", "可以吗")):
+        return "你问的是这个点，"
+    if emotion.get("primary") in {"sadness", "fatigue"}:
+        return "你这句不轻，"
+    return None
+
+
 def build_speech_unit(
     text: str,
     base_emotion: dict[str, Any],
@@ -438,12 +469,15 @@ async def handle_streaming(
     full_text = ""
     sentence_buffer = ""
     first_speech_unit = True
+    answer_audio_started = False
 
     async def send_ai_locked(text: str) -> None:
         async with send_lock:
             await send_ai_chunk(websocket, text)
 
     async def send_audio_locked(audio_base64: str) -> None:
+        nonlocal answer_audio_started
+        answer_audio_started = True
         async with send_lock:
             await send_audio_chunk(websocket, audio_base64)
 
@@ -460,8 +494,26 @@ async def handle_streaming(
                 speech_queue.put_nowait(speech_unit)
                 first_speech_unit = False
 
+    async def send_contextual_bridge() -> None:
+        bridge_text = contextual_bridge_text(user_text, emotion)
+        if not bridge_text:
+            return
+        try:
+            audio = await tts_service.synthesize(
+                bridge_text,
+                emotion,
+                voice_id=voice_id,
+            )
+            if audio and not answer_audio_started:
+                async with send_lock:
+                    if not answer_audio_started:
+                        await send_audio_cue(websocket, audio)
+        except Exception as exc:
+            print(f"Contextual bridge TTS skipped: {exc}")
+
     tts_worker = asyncio.create_task(_speech_tts_worker(speech_queue, audio_queue, emotion, voice_id))
     audio_sender = asyncio.create_task(_drain_audio_queue(audio_queue, send_audio_locked))
+    bridge_task = asyncio.create_task(send_contextual_bridge())
 
     try:
         async for token in gemma_service.generate_stream(prompt, user_text, emotion):
@@ -506,8 +558,11 @@ async def handle_streaming(
                 break
 
     except asyncio.CancelledError:
+        bridge_task.cancel()
         tts_worker.cancel()
         audio_sender.cancel()
+        with suppress(asyncio.CancelledError):
+            await bridge_task
         with suppress(asyncio.CancelledError):
             await tts_worker
         with suppress(asyncio.CancelledError):
@@ -519,6 +574,9 @@ async def handle_streaming(
             await send_ai_locked(full_text)
         else:
             await send_json_locked({"type": "error", "message": "生成失败，请重试。"})
+            bridge_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await bridge_task
             await speech_queue.put(None)
             await tts_worker
             await audio_sender
@@ -531,6 +589,10 @@ async def handle_streaming(
     await speech_queue.put(None)
     await tts_worker
     audio_sent = await audio_sender
+    if not bridge_task.done():
+        bridge_task.cancel()
+    with suppress(asyncio.CancelledError):
+        await bridge_task
 
     if audio_sent:
         await session_store.append(session_id, "assistant", full_text)
@@ -763,7 +825,10 @@ async def chat(websocket: WebSocket) -> None:
                 active_companion_name = message_companion_name
                 greeting = build_session_greeting(active_companion_name)
 
-                model_warmup = asyncio.create_task(gemma_service.prewarm())
+                model_warmup = asyncio.create_task(gemma_service.prewarm(active_companion_name))
+                transport_warmup = asyncio.create_task(
+                    tts_service.wait_for_transport_prewarm(active_voice_id, timeout=5.0)
+                )
                 greeting_audio = tts_service.get_cached_reply_audio(greeting, active_voice_id)
                 if not greeting_audio:
                     try:
@@ -783,6 +848,10 @@ async def chat(websocket: WebSocket) -> None:
                     model_warmup.cancel()
                     with suppress(asyncio.CancelledError):
                         await model_warmup
+                try:
+                    await transport_warmup
+                except Exception as exc:
+                    print(f"TTS transport warmup skipped: {exc}")
 
                 remaining_connection_time = 1.1 - (time.monotonic() - greeting_started_at)
                 if remaining_connection_time > 0:

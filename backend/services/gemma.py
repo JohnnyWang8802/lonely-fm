@@ -35,7 +35,7 @@ class GemmaService:
                 "error": str(exc),
             }
 
-    async def prewarm(self) -> None:
+    async def prewarm(self, companion_name: str = "阿婉") -> None:
         """Load the model AND warm the persona-prompt KV cache so the first real turn is fast.
 
         The big static rule block in the system prompt is the stable cacheable prefix; by sending
@@ -51,7 +51,7 @@ class GemmaService:
             from prompt.persona import build_prompt
 
             neutral_emotion = {"primary": "calm", "confidence": 0.72, "speech_rate": "normal", "pitch": "normal"}
-            prompt = build_prompt(neutral_emotion, [], "你好", None, None, None)
+            prompt = build_prompt(neutral_emotion, [], "今天有点累", None, None, None, companion_name)
             endpoint = f"{settings.local_gemma_base_url.rstrip('/')}/api/chat"
             payload = {
                 "model": settings.gemma_model,
@@ -435,7 +435,11 @@ class GemmaService:
             "没事的": "",
             "没关系，": "",
             "没关系": "",
+            "咱们": "我们",
             "陪着你": "听你说",
+            "后台处理数据量太大": "本地模型和语音合成还在接力",
+            "后台处理的数据量太大": "本地模型和语音合成还在接力",
+            "模型还在思考怎么给出最好的答案": "Gemma 先生成文字，TTS 再把它变成声音",
             "需要放慢一点节奏": "确实有点累了",
             "可以稍微停下来喘口气": "先把最累的那一块说出来",
             "可以先歇一会儿": "先把最累的那一块说出来",

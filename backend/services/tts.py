@@ -137,6 +137,22 @@ class TtsService:
             self._prewarm_transport(effective_voice_id)
         )
 
+    async def wait_for_transport_prewarm(self, voice_id: str | None = None, timeout: float = 5.0) -> None:
+        settings = get_settings()
+        if settings.tts_provider.lower() != "minimax" or not settings.minimax_api_key:
+            return
+        effective_voice_id = self._minimax_voice_id(voice_id)
+        task = self._transport_prewarm_tasks.get(effective_voice_id)
+        if not task:
+            self.prewarm_transport(effective_voice_id)
+            task = self._transport_prewarm_tasks.get(effective_voice_id)
+        if not task:
+            return
+        try:
+            await asyncio.wait_for(asyncio.shield(task), timeout=timeout)
+        except asyncio.TimeoutError:
+            return
+
     def prewarm_reply_audio(self, text: str, voice_id: str | None = None) -> None:
         key = self._reply_cache_key(text, voice_id)
         if self.get_cached_reply_audio(text, voice_id):

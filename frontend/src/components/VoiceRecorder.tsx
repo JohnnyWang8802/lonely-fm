@@ -31,12 +31,12 @@ export const VoiceRecorder = ({ callStatus, elapsedSeconds, level }: VoiceRecord
   }
 
   const inputLevel = Math.min(level, 1);
-  const audioLevel = assistantSpeaking ? 0.56 : inputLevel;
-  const ringScale = 1 + audioLevel * 0.006;
-  const coreScale = 1 + audioLevel * 0.012;
-  const glowScale = 1 + audioLevel * 0.035;
-  const glowOpacity = 0.38 + audioLevel * 0.2;
-  const glowBlur = 3 + audioLevel * 4;
+  const audioLevel = assistantSpeaking ? 0.72 : inputLevel;
+  const inputVoiceActive = listening && inputLevel > 0.035;
+  const rippleActive = inputVoiceActive || assistantSpeaking;
+  const activityLevel = rippleActive ? Math.max(audioLevel, 0.18) : 0;
+  const coreScale = 1 + activityLevel * 0.018;
+  const rippleOpacity = 0.18 + activityLevel * 0.24;
 
   return (
     <section className="restored-presence" aria-label="语音陪伴入口">
@@ -45,17 +45,17 @@ export const VoiceRecorder = ({ callStatus, elapsedSeconds, level }: VoiceRecord
         <span>{assistantSpeaking ? "正在说话" : "正在收听"}</span>
       </div>
       <div
-        className={`restored-orb ${listening ? "is-listening" : ""} ${assistantSpeaking ? "is-speaking" : ""}`}
+        className={`restored-orb ${inputVoiceActive ? "is-listening" : ""} ${assistantSpeaking ? "is-speaking" : ""}`}
         aria-hidden="true"
         style={{
           "--audio-level": audioLevel,
-          "--ring-scale": ringScale,
           "--core-scale": coreScale,
-          "--glow-scale": glowScale,
-          "--glow-opacity": glowOpacity,
-          "--glow-blur": `${glowBlur}px`,
+          "--ripple-opacity": rippleOpacity,
         } as CSSProperties}
       >
+        <span className="restored-orb-ripple restored-orb-ripple-one" />
+        <span className="restored-orb-ripple restored-orb-ripple-two" />
+        <span className="restored-orb-ripple restored-orb-ripple-three" />
         <span className="restored-orb-inner" />
       </div>
     </section>

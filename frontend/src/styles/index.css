@@ -2132,12 +2132,10 @@ svg {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(52, 57, 35, 0.15);
   background: transparent;
 }
 
-.restored-orb::before,
-.restored-orb::after {
+.restored-orb::before {
   content: "";
   position: absolute;
   border-radius: 50%;
@@ -2146,38 +2144,33 @@ svg {
 
 .restored-orb::before {
   z-index: 0;
-  inset: 7%;
-  border: 1px solid rgba(236, 102, 118, 0.17);
-  background: repeating-conic-gradient(from 0deg, rgba(52,57,35,.06) 0deg 1deg, transparent 1deg 12deg);
-  mask: radial-gradient(circle, transparent 0 81%, #000 82% 84%, transparent 85%);
-  -webkit-mask: radial-gradient(circle, transparent 0 81%, #000 82% 84%, transparent 85%);
+  width: 39%;
+  height: 39%;
+  background:
+    radial-gradient(circle at 42% 34%, rgba(255, 255, 255, 0.3), transparent 34%),
+    linear-gradient(145deg, rgba(223, 216, 177, 0.5), rgba(221, 189, 169, 0.36));
+  filter: blur(18px);
+  opacity: 0;
+  transform: scale(1);
+  transition: opacity 220ms ease, transform 220ms ease;
 }
 
-.restored-orb::after {
+.restored-orb-ripple {
+  position: absolute;
   z-index: 1;
-  inset: 0;
-  background:
-    radial-gradient(circle at 43% 42%, rgba(246, 190, 168, 0.34), transparent 36%),
-    radial-gradient(circle at 61% 58%, rgba(217, 141, 158, 0.24), transparent 39%),
-    conic-gradient(
-      from 18deg,
-      rgba(236, 169, 151, 0.34),
-      rgba(218, 150, 163, 0.16) 24%,
-      rgba(246, 196, 169, 0.3) 48%,
-      rgba(224, 148, 161, 0.18) 73%,
-      rgba(236, 169, 151, 0.34)
-    );
-  opacity: var(--glow-opacity, 0.38);
-  filter: blur(var(--glow-blur, 3px)) saturate(0.88);
-  mask: radial-gradient(circle, transparent 0 18.8%, #000 19.4%, rgba(0, 0, 0, 0.78) 34%, rgba(0, 0, 0, 0.24) 56%, transparent 72%);
-  -webkit-mask: radial-gradient(circle, transparent 0 18.8%, #000 19.4%, rgba(0, 0, 0, 0.78) 34%, rgba(0, 0, 0, 0.24) 56%, transparent 72%);
-  transform: scale(var(--glow-scale, 1));
-  transition: transform 90ms linear, filter 90ms linear, opacity 90ms linear;
+  width: 39%;
+  height: 39%;
+  border-radius: 50%;
+  border: 1px solid rgba(216, 220, 181, 0.52);
+  background: rgba(213, 220, 174, 0.09);
+  opacity: 0;
+  transform: scale(1);
+  pointer-events: none;
 }
 
 .restored-orb-inner {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   width: 39%;
   height: 39%;
   border-radius: 50%;
@@ -2188,29 +2181,43 @@ svg {
     0 0 18px 4px rgba(224, 156, 158, 0.12),
     0 18px 60px rgba(215, 137, 126, 0.16);
   transform: scale(var(--core-scale, 1));
-  transition: transform 150ms ease;
+  transition: transform 120ms ease;
 }
 
-.restored-orb.is-listening {
-  transform: scale(var(--ring-scale, 1));
+.restored-orb.is-listening::before,
+.restored-orb.is-speaking::before {
+  opacity: 1;
+  transform: scale(1.14);
 }
 
-.restored-orb.is-speaking::after {
-  animation: restored-voice-glow 1.65s ease-in-out infinite;
+.restored-orb.is-listening .restored-orb-ripple,
+.restored-orb.is-speaking .restored-orb-ripple {
+  animation: restored-orb-ripple 2.35s cubic-bezier(0.22, 0.78, 0.34, 1) infinite;
 }
 
-@keyframes restored-voice-glow {
-  0%, 100% {
-    transform: rotate(-2deg) scale(var(--glow-scale, 1));
-    opacity: var(--glow-opacity, 0.38);
+.restored-orb.is-speaking .restored-orb-ripple {
+  animation-duration: 1.72s;
+}
+
+.restored-orb-ripple-two {
+  animation-delay: 0.42s !important;
+}
+
+.restored-orb-ripple-three {
+  animation-delay: 0.84s !important;
+}
+
+@keyframes restored-orb-ripple {
+  0% {
+    opacity: calc(var(--ripple-opacity, 0.2) + 0.08);
+    transform: scale(1);
   }
-  37% {
-    transform: rotate(6deg) scale(calc(var(--glow-scale, 1) + 0.018));
-    opacity: calc(var(--glow-opacity, 0.38) + 0.08);
+  58% {
+    opacity: calc(var(--ripple-opacity, 0.2) * 0.55);
   }
-  72% {
-    transform: rotate(-5deg) scale(calc(var(--glow-scale, 1) + 0.006));
-    opacity: calc(var(--glow-opacity, 0.38) + 0.025);
+  100% {
+    opacity: 0;
+    transform: scale(2.7);
   }
 }
 

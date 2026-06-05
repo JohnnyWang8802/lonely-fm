@@ -623,7 +623,6 @@ const VoiceSelectPage = () => {
   const logout = useSessionStore((state) => state.logout);
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string>("linyu");
   const accountInitial = Array.from(authProfile?.name || authProfile?.email || "访")[0]?.toUpperCase() || "访";
 
   useEffect(() => {
@@ -721,15 +720,13 @@ const VoiceSelectPage = () => {
         <div className="voice-cards-container">
           {VOICE_PROFILES.map((voice) => {
             const detail = companionDetails[voice.id];
-            const isSelected = selectedId === voice.id;
             if (!detail) return null;
 
             return (
               <div
                 key={voice.id}
-                className={`voice-card voice-card-${voice.id} ${isSelected ? "is-selected" : ""}`}
-                onClick={() => setSelectedId(voice.id)}
-                onDoubleClick={() => handleSelect(voice)}
+                className={`voice-card voice-card-${voice.id}`}
+                onClick={() => handleSelect(voice)}
               >
                 {voice.id === "linyu" ? (
                   <>
@@ -776,18 +773,6 @@ const VoiceSelectPage = () => {
                     </div>
                   </>
                 )}
-
-                <button
-                  className="voice-card-arrow-btn"
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelect(voice);
-                  }}
-                  aria-label={`选择${voice.displayName}并开始对话`}
-                >
-                  <Phone size={20} />
-                </button>
               </div>
             );
           })}

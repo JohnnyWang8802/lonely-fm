@@ -2504,40 +2504,31 @@ svg {
 }
 
 .voice-card-fade-overlay.fade-to-left {
-  background: linear-gradient(to right, #fffaf2 0%, rgba(255, 250, 242, 0) 100%);
+  background: linear-gradient(
+    to right,
+    #fffaf2 0%,
+    #fffaf2 12%,
+    rgba(255, 250, 242, 0.88) 35%,
+    rgba(255, 250, 242, 0.55) 60%,
+    rgba(255, 250, 242, 0.22) 80%,
+    rgba(255, 250, 242, 0) 100%
+  );
   left: 0;
-  width: 35%;
+  width: 50%;
 }
 
 .voice-card-fade-overlay.fade-to-right {
-  background: linear-gradient(to left, #fffaf2 0%, rgba(255, 250, 242, 0) 100%);
+  background: linear-gradient(
+    to left,
+    #fffaf2 0%,
+    #fffaf2 12%,
+    rgba(255, 250, 242, 0.88) 35%,
+    rgba(255, 250, 242, 0.55) 60%,
+    rgba(255, 250, 242, 0.22) 80%,
+    rgba(255, 250, 242, 0) 100%
+  );
   right: 0;
-  width: 35%;
-}
-
-.voice-card-arrow-btn {
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
-  z-index: 5;
-  width: 48px;
-  height: 48px;
-  border-radius: 99px;
-  background: #ffffff;
-  color: #2f3325;
-  border: 1px solid rgba(52, 57, 35, 0.08);
-  box-shadow: 0 4px 12px rgba(52, 57, 35, 0.06);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.voice-card-arrow-btn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 16px rgba(52, 57, 35, 0.12);
-  border-color: rgba(52, 57, 35, 0.16);
-  background: #fbfaf8;
+  width: 50%;
 }
 
 .voice-select-actions {
@@ -2625,12 +2616,14 @@ svg {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, #fffaf2 0%, rgba(255, 250, 242, 0) 100%);
-  }
-  .voice-card-arrow-btn {
-    bottom: auto;
-    top: 20px;
-    right: 20px;
+    background: linear-gradient(
+      to top,
+      #fffaf2 0%,
+      #fffaf2 15%,
+      rgba(255, 250, 242, 0.8) 45%,
+      rgba(255, 250, 242, 0.4) 75%,
+      rgba(255, 250, 242, 0) 100%
+    );
   }
 }
 

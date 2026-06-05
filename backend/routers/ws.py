@@ -448,6 +448,7 @@ async def handle_streaming(
     prompt: dict[str, object],
     is_first_turn: bool,
     voice_id: str | None,
+    gemma_runtime: dict[str, object] | None = None,
 ) -> None:
     """
     Calls Gemma via generate_stream() and immediately forwards every token
@@ -516,7 +517,7 @@ async def handle_streaming(
     bridge_task = asyncio.create_task(send_contextual_bridge())
 
     try:
-        async for token in gemma_service.generate_stream(prompt, user_text, emotion):
+        async for token in gemma_service.generate_stream(prompt, user_text, emotion, gemma_runtime):
             if not full_text:
                 if token.strip() in {"嗯", "啊", "唉", "呃", "，", ",", "。"}:
                     continue
@@ -693,6 +694,7 @@ async def handle_text(
     prosody: dict[str, Any] | None = None,
     voice_id: str | None = None,
     companion_name: str = "阿婉",
+    gemma_runtime: dict[str, object] | None = None,
 ) -> None:
     text = user_text.strip()
     if not text:
@@ -738,7 +740,7 @@ async def handle_text(
     prompt = build_prompt(emotion, history, text, prosody, turn_signals, memories, companion_name)
     is_first_turn = not history
 
-    await handle_streaming(websocket, session_id, text, voice_emotion, prompt, is_first_turn, voice_id)
+    await handle_streaming(websocket, session_id, text, voice_emotion, prompt, is_first_turn, voice_id, gemma_runtime)
 
 
 # ---------------------------------------------------------------------------
@@ -790,6 +792,22 @@ async def chat(websocket: WebSocket) -> None:
         active_model_warmup_task = asyncio.create_task(gemma_service.prewarm(companion_name))
         return active_model_warmup_task
 
+    def gemma_runtime_from_message(message: dict[str, Any]) -> dict[str, object] | None:
+        mode = str(message.get("gemma_mode") or "").strip()
+        if mode not in {"local", "cloud"}:
+            return None
+        runtime: dict[str, object] = {"mode": mode}
+        model = str(message.get("gemma_model") or "").strip()
+        base_url = str(message.get("gemma_base_url") or "").strip()
+        api_key = str(message.get("gemma_api_key") or "").strip()
+        if model:
+            runtime["model"] = model
+        if base_url:
+            runtime["base_url"] = base_url
+        if api_key:
+            runtime["api_key"] = api_key
+        return runtime
+
     try:
         while True:
             message: dict[str, Any] = await websocket.receive_json()
@@ -798,6 +816,7 @@ async def chat(websocket: WebSocket) -> None:
             user_id = str(message.get("user_id") or "guest-local")
             message_voice_id = resolve_voice_id(message.get("voice_id"))
             message_companion_name = resolve_companion_name(message.get("voice_profile_id"))
+            message_gemma_runtime = gemma_runtime_from_message(message)
 
             if message_type == "session_start":
                 verified_user_id = await session_store.bind_authenticated_user(
@@ -913,6 +932,7 @@ async def chat(websocket: WebSocket) -> None:
                             prosody if isinstance(prosody, dict) else None,
                             active_voice_id,
                             active_companion_name,
+                            message_gemma_runtime,
                         )
                     )
                 )
@@ -937,6 +957,7 @@ async def chat(websocket: WebSocket) -> None:
                                 text,
                                 voice_id=active_voice_id,
                                 companion_name=active_companion_name,
+                                gemma_runtime=message_gemma_runtime,
                             )
                         )
                     )

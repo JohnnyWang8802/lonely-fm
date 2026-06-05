@@ -716,6 +716,19 @@ svg {
   line-height: 1.65;
 }
 
+.setup-step-list {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid rgba(52, 57, 35, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.42);
+  color: rgba(32, 35, 25, 0.68);
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
 .setup-command {
   min-height: 50px;
   display: grid;
@@ -726,6 +739,10 @@ svg {
   border-radius: 8px;
   background: rgba(32, 35, 25, 0.92);
   color: #f8f4ea;
+}
+
+.setup-command-subtle {
+  background: rgba(32, 35, 25, 0.72);
 }
 
 .setup-command code {

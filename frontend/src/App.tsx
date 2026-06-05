@@ -26,7 +26,7 @@ import {
   checkLocalGemma,
   createCloudGemmaConnection,
   createLocalGemmaConnection,
-  LOCAL_GEMMA_MODEL
+  RECOMMENDED_LOCAL_GEMMA_MODEL
 } from "./services/gemmaConnection";
 import { VOICE_PROFILES } from "./voiceProfiles";
 
@@ -470,7 +470,8 @@ const GemmaSetupPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const installCommand = `ollama pull ${LOCAL_GEMMA_MODEL}`;
+  const installCommand = `ollama pull ${RECOMMENDED_LOCAL_GEMMA_MODEL}`;
+  const backendCommand = "cd backend && .venv/bin/uvicorn main:app --host 127.0.0.1 --port 8001";
   const originCommand = `launchctl setenv OLLAMA_ORIGINS "https://lonely-fm.vercel.app,http://localhost:5173,http://127.0.0.1:5173"`;
 
   const copyInstallCommand = async () => {
@@ -486,6 +487,16 @@ const GemmaSetupPage = () => {
   const copyOriginCommand = async () => {
     try {
       await navigator.clipboard.writeText(originCommand);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const copyBackendCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(backendCommand);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -524,8 +535,8 @@ const GemmaSetupPage = () => {
           <p className="section-eyebrow">Gemma first</p>
           <h1 id="setup-title">先连接你的 Gemma 4。</h1>
           <p>
-            Lonely FM 默认优先使用你电脑上的本地 Gemma 4。这样更私密，也更适合情绪陪伴场景。
-            如果你暂时没有本地模型，也可以输入自己的云端 API key。
+            Lonely FM 默认优先连接你电脑上的本地后端，再由本地后端调用 Ollama / Gemma 4。
+            这样更私密，也更适合情绪陪伴场景；没有本地模型时，再使用云端 API key。
           </p>
         </section>
 
@@ -539,7 +550,7 @@ const GemmaSetupPage = () => {
                 <h2>本地 Ollama / Gemma 4</h2>
                 <p>
                   {checking
-                    ? "正在检测这台电脑是否已经启动 Ollama..."
+                    ? "正在检测这台电脑是否已经启动本地后端和 Ollama..."
                     : localResult?.ok
                       ? `已检测到 ${localResult.selectedModel ?? "本地 Gemma 4"}，可以进入频道。`
                       : "没有检测到可用的本地 Gemma 4。"}
@@ -556,20 +567,32 @@ const GemmaSetupPage = () => {
                   </span>
                 </div>
                 {localResult.setupHint && <p className="setup-hint">{localResult.setupHint}</p>}
-                {!localResult.ollamaAvailable && (
-                  <div className="setup-command">
-                    <code>{originCommand}</code>
-                    <button type="button" onClick={copyOriginCommand}>
-                      {copied ? "已复制" : "复制"}
-                    </button>
-                  </div>
-                )}
+                <div className="setup-step-list" aria-label="本地连接步骤">
+                  <span>1. 启动 Ollama。</span>
+                  <span>2. 启动 Lonely FM 本地后端。</span>
+                  <span>3. 回到这里重新检测。</span>
+                </div>
                 <div className="setup-command">
                   <code>{installCommand}</code>
                   <button type="button" onClick={copyInstallCommand}>
                     {copied ? "已复制" : "复制"}
                   </button>
                 </div>
+                <p className="setup-hint">也兼容 gemma4:e4b 和 gemma4:21b；只要模型名以 gemma4 开头即可。</p>
+                <div className="setup-command">
+                  <code>{backendCommand}</code>
+                  <button type="button" onClick={copyBackendCommand}>
+                    {copied ? "已复制" : "复制"}
+                  </button>
+                </div>
+                {!localResult.ollamaAvailable && (
+                  <div className="setup-command setup-command-subtle">
+                    <code>{originCommand}</code>
+                    <button type="button" onClick={copyOriginCommand}>
+                      {copied ? "已复制" : "复制"}
+                    </button>
+                  </div>
+                )}
                 <a className="setup-link" href="https://ollama.com/download" target="_blank" rel="noreferrer">
                   下载 Ollama
                 </a>

@@ -8,6 +8,20 @@ import httpx
 from config import get_settings
 
 
+def _is_gemma4_model(value: str) -> bool:
+    normalized = value.strip().lower()
+    return normalized == "gemma4" or normalized.startswith("gemma4:")
+
+
+def _select_gemma4_model(models: list[str], requested_model: str) -> str | None:
+    if requested_model in models:
+        return requested_model
+    requested_latest = f"{requested_model}:latest"
+    if requested_latest in models:
+        return requested_latest
+    return next((model for model in models if _is_gemma4_model(model)), None)
+
+
 class GemmaService:
     def _local_http_client(self, timeout: float) -> httpx.AsyncClient:
         # Local model servers should never be routed through system HTTP proxies.
@@ -90,43 +104,56 @@ class GemmaService:
         prompt: dict[str, object],
         user_text: str,
         emotion: dict[str, object],
+        runtime: dict[str, object] | None = None,
     ) -> AsyncIterator[str]:
         """Yields text chunks as the model generates tokens. Falls back to non-streaming on error."""
         settings = get_settings()
-        if settings.gemma_provider == "local":
+        runtime_mode = str((runtime or {}).get("mode") or settings.gemma_provider)
+        if runtime_mode == "local":
             try:
-                async for chunk in self._stream_with_local_model(prompt):
+                async for chunk in self._stream_with_local_model(prompt, runtime):
                     yield chunk
                 return
             except Exception as exc:
                 print(f"Local stream fallback: {exc}")
 
-        if not settings.google_ai_api_key:
+        runtime_api_key = str((runtime or {}).get("api_key") or "").strip()
+        if not runtime_api_key and not settings.google_ai_api_key:
             yield self._mock_response(user_text, emotion)
             return
         try:
-            text = await self._generate_with_gemini_api(prompt)
+            text = await self._generate_with_gemini_api(prompt, runtime)
             yield self._clean_response(text)
         except Exception as exc:
             print(f"Gemma API stream fallback: {exc}")
             yield "我先帮你抓重点，哪一段最卡你？"
 
-    async def _stream_with_local_model(self, prompt: dict[str, object]) -> AsyncIterator[str]:
+    async def _stream_with_local_model(
+        self,
+        prompt: dict[str, object],
+        runtime: dict[str, object] | None = None,
+    ) -> AsyncIterator[str]:
         settings = get_settings()
         provider = settings.local_gemma_provider.lower()
         if provider == "openai":
             async for chunk in self._stream_openai(prompt):
                 yield chunk
         else:
-            async for chunk in self._stream_ollama(prompt):
+            async for chunk in self._stream_ollama(prompt, runtime):
                 yield chunk
 
-    async def _stream_ollama(self, prompt: dict[str, object]) -> AsyncIterator[str]:
+    async def _stream_ollama(
+        self,
+        prompt: dict[str, object],
+        runtime: dict[str, object] | None = None,
+    ) -> AsyncIterator[str]:
         settings = get_settings()
-        endpoint = f"{settings.local_gemma_base_url.rstrip('/')}/api/chat"
+        base_url = str((runtime or {}).get("base_url") or settings.local_gemma_base_url)
+        model = str((runtime or {}).get("model") or settings.gemma_model)
+        endpoint = f"{base_url.rstrip('/')}/api/chat"
         messages = self._to_chat_messages(prompt)
         payload = {
-            "model": settings.gemma_model,
+            "model": model,
             "messages": messages,
             "stream": True,
             "think": False,
@@ -281,12 +308,14 @@ class GemmaService:
             if isinstance(model, dict)
         ]
         requested_model = settings.gemma_model
-        available = requested_model in models or f"{requested_model}:latest" in models
+        selected_model = _select_gemma4_model(models, requested_model)
+        available = bool(selected_model)
         return {
             "provider": "local",
             "local_provider": "ollama",
             "base_url": settings.local_gemma_base_url,
             "model": requested_model,
+            "selected_model": selected_model,
             "available": available,
             "models": models,
         }
@@ -315,11 +344,17 @@ class GemmaService:
             "models": models,
         }
 
-    async def _generate_with_gemini_api(self, prompt: dict[str, object]) -> str:
+    async def _generate_with_gemini_api(
+        self,
+        prompt: dict[str, object],
+        runtime: dict[str, object] | None = None,
+    ) -> str:
         settings = get_settings()
+        model = str((runtime or {}).get("model") or settings.gemma_model)
+        api_key = str((runtime or {}).get("api_key") or settings.google_ai_api_key or "")
         endpoint = (
             "https://generativelanguage.googleapis.com/v1beta/"
-            f"models/{settings.gemma_model}:generateContent"
+            f"models/{model}:generateContent"
         )
         system = str(prompt.get("system", ""))
         messages = prompt.get("messages", [])
@@ -347,7 +382,7 @@ class GemmaService:
         }
         headers = {
             "Content-Type": "application/json",
-            "x-goog-api-key": settings.google_ai_api_key or "",
+            "x-goog-api-key": api_key,
         }
         async with httpx.AsyncClient(timeout=20) as client:
             response = await client.post(endpoint, headers=headers, json=request_body)

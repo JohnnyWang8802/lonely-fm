@@ -16,8 +16,16 @@ const dispatchAssistantAudioState = (state: "start" | "end") => {
   window.dispatchEvent(new CustomEvent(`lonelyfm:assistant-audio-${state}`));
 };
 
+const stopAudioElement = (audio: HTMLAudioElement | null) => {
+  if (!audio) return;
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+};
+
 export const useWebSocket = () => {
   const socketRef = useRef<WebSocket | null>(null);
+  const activeRef = useRef(true);
   const retryRef = useRef(0);
   const reconnectTimerRef = useRef<number | null>(null);
   const shouldReconnectRef = useRef(true);
@@ -71,7 +79,7 @@ export const useWebSocket = () => {
       streamingAudioRef.current = null;
     }
     if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
+      stopAudioElement(currentAudioRef.current);
       markAssistantAudioState("end");
     }
     currentAudioRef.current = null;
@@ -133,6 +141,7 @@ export const useWebSocket = () => {
   }, [clearSpeechQueue, withSession]);
 
   const playBufferedResponse = useCallback(() => {
+    if (!activeRef.current) return;
     if (mutedRef.current || responseAudioChunksRef.current.length === 0) return;
     if (!looksLikePlayableAudio(responseAudioChunksRef.current)) {
       setError("音频边界异常，已跳过这次播放。");
@@ -140,7 +149,7 @@ export const useWebSocket = () => {
     }
     const url = createAudioUrl(responseAudioChunksRef.current);
     if (!url) return;
-    currentAudioRef.current?.pause();
+    stopAudioElement(currentAudioRef.current);
     const audio = createPlaybackAudio(url);
     currentAudioRef.current = audio;
     markAssistantAudioState("start");
@@ -165,13 +174,14 @@ export const useWebSocket = () => {
 
   const playStreamingChunk = useCallback(
     (chunk: ReplyAudioChunk) => {
+      if (!activeRef.current) return false;
       if (mutedRef.current || streamingAudioFailedRef.current) return false;
       if (!streamingAudioRef.current) {
         if (!looksLikePlayableAudio([chunk])) {
           streamingAudioFailedRef.current = true;
           return false;
         }
-        currentAudioRef.current?.pause();
+        stopAudioElement(currentAudioRef.current);
         let handle: StreamingAudioHandle | null = null;
         handle = createStreamingAudioHandle(chunk.mimeType, {
           onStart: () => markAssistantAudioState("start"),
@@ -207,10 +217,11 @@ export const useWebSocket = () => {
 
   const playCue = useCallback(
     (chunk: ReplyAudioChunk) => {
+      if (!activeRef.current) return;
       if (mutedRef.current || !looksLikePlayableAudio([chunk])) return;
       const url = createAudioUrl([chunk]);
       if (!url) return;
-      currentAudioRef.current?.pause();
+      stopAudioElement(currentAudioRef.current);
       const audio = createPlaybackAudio(url);
       currentAudioRef.current = audio;
       markAssistantAudioState("start");
@@ -244,6 +255,7 @@ export const useWebSocket = () => {
   const handleMessage = useCallback(
     (event: MessageEvent<string>) => {
       const message = JSON.parse(event.data) as ServerMessage;
+      if (!activeRef.current) return;
       if (message.type === "emotion") {
         setEmotion(message.data);
         return;
@@ -406,9 +418,11 @@ export const useWebSocket = () => {
   );
 
   useEffect(() => {
+    activeRef.current = true;
     shouldReconnectRef.current = true;
     connect();
     return () => {
+      activeRef.current = false;
       shouldReconnectRef.current = false;
       if (reconnectTimerRef.current) {
         window.clearTimeout(reconnectTimerRef.current);

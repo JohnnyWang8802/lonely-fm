@@ -2046,6 +2046,14 @@ svg {
   text-decoration: none;
 }
 
+.talk-brand-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
 .talk-brand {
   display: inline-flex;
   align-items: center;

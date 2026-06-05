@@ -52,6 +52,7 @@ const needsMoreTurnTime = (text: string): boolean => {
 };
 
 export const useAudioRecorder = ({ send }: UseAudioRecorderArgs): UseAudioRecorderResult => {
+  const mountedRef = useRef(true);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -378,7 +379,7 @@ export const useAudioRecorder = ({ send }: UseAudioRecorderArgs): UseAudioRecord
   }, [clearRecognitionRestart, scheduleRecognitionRestart]);
 
   const startRecording = useCallback(async () => {
-    if (startingRef.current || streamRef.current) return;
+    if (!mountedRef.current || startingRef.current || streamRef.current) return;
     window.dispatchEvent(new CustomEvent("lonelyfm:barge-in"));
     startingRef.current = true;
     try {
@@ -398,6 +399,10 @@ export const useAudioRecorder = ({ send }: UseAudioRecorderArgs): UseAudioRecord
       manuallyStoppingRef.current = false;
       clearRecognitionRestart();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!mountedRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = stream;
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
@@ -414,8 +419,10 @@ export const useAudioRecorder = ({ send }: UseAudioRecorderArgs): UseAudioRecord
         const recorder = new MediaRecorder(stream, options);
         mediaRecorderRef.current = recorder;
         recorder.ondataavailable = async (event) => {
+          if (!mountedRef.current) return;
           if (event.data.size === 0) return;
           const data = await blobToBase64(event.data);
+          if (!mountedRef.current) return;
           send({ type: "audio_chunk", data, mime_type: event.data.type });
         };
         recorder.start(1200);
@@ -466,6 +473,41 @@ export const useAudioRecorder = ({ send }: UseAudioRecorderArgs): UseAudioRecord
       send({ type: "text_input", text: "我刚才说了一段话，但浏览器没有识别出来。" });
     }
   }, [clearRecognitionRestart, clearRecognitionWatchdog, flushPendingTranscript, send, setListening, stopLevelMeter]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      manuallyStoppingRef.current = true;
+      assistantSpeakingRef.current = false;
+      clearRecognitionRestart();
+      clearRecognitionWatchdog();
+      if (flushTimerRef.current) {
+        window.clearTimeout(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
+      try {
+        mediaRecorderRef.current?.stop();
+      } catch {
+        // MediaRecorder can throw if the browser already stopped it.
+      }
+      mediaRecorderRef.current = null;
+      try {
+        recognitionRef.current?.abort();
+      } catch {
+        // Chrome can throw when Web Speech is already stopped.
+      }
+      recognitionRef.current = null;
+      recognitionStartingRef.current = false;
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      void audioContextRef.current?.close();
+      audioContextRef.current = null;
+      stopLevelMeter();
+      startingRef.current = false;
+      setListening(false);
+    };
+  }, [clearRecognitionRestart, clearRecognitionWatchdog, setListening, stopLevelMeter]);
 
   return {
     startRecording,

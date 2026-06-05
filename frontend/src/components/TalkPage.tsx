@@ -1,6 +1,6 @@
 import { LogIn, LogOut, PhoneOff, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { VoiceRecorder } from "./VoiceRecorder";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { useDocumentTheme } from "../hooks/useDocumentTheme";
@@ -100,24 +100,40 @@ const TalkPage = () => {
     return () => document.removeEventListener("pointerdown", close);
   }, [accountMenuOpen]);
 
-  const endSession = () => {
+  const closeSessionAudio = () => {
     if (listening) stopRecording();
     send({ type: "session_end" });
+  };
+
+  const endSession = () => {
+    closeSessionAudio();
     clearSelectedVoice();
     navigate("/voice-select", { replace: true });
   };
 
+  const goHome = () => {
+    closeSessionAudio();
+    navigate("/", { replace: true });
+  };
+
   const goToLogin = () => {
-    if (listening) stopRecording();
-    send({ type: "session_end" });
+    closeSessionAudio();
     logout();
     navigate("/login", { replace: true });
+  };
+
+  const logoutFromTalk = () => {
+    closeSessionAudio();
+    logout();
+    navigate("/", { replace: true });
   };
 
   return (
     <div className="app-shell restored-talk-shell">
       <header className="restored-talk-header">
-        <Link to="/" aria-label="返回 Lonely FM 首页"><Logo /></Link>
+        <button className="talk-brand-button" type="button" aria-label="返回 Lonely FM 首页" onClick={goHome}>
+          <Logo />
+        </button>
         <div className="account-menu" ref={accountMenuRef}>
           <button
             className="account-avatar restored-avatar"
@@ -142,7 +158,7 @@ const TalkPage = () => {
                   <LogIn size={16} />登录以保存记忆
                 </button>
               ) : (
-                <button className="account-logout" type="button" onClick={() => { logout(); navigate("/", { replace: true }); }}>
+                <button className="account-logout" type="button" onClick={logoutFromTalk}>
                   <LogOut size={16} />退出登录
                 </button>
               )}

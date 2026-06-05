@@ -1,8 +1,12 @@
 import { createClient, type Session } from "@supabase/supabase-js";
 import type { AuthProfile } from "../types";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+const fallbackSupabaseUrl = "https://rerptedbzlgdkprtmwgw.supabase.co";
+const fallbackSupabaseAnonKey = "sb_publishable_5QBL2--xincShNYGZ-KIKg_yvIiWFlh";
+
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || fallbackSupabaseUrl;
+const supabaseAnonKey =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || fallbackSupabaseAnonKey;
 
 export const supabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 export const supabase = supabaseConfigured ? createClient(supabaseUrl!, supabaseAnonKey!) : null;

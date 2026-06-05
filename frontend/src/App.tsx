@@ -1,10 +1,32 @@
-import { ArrowRight, Headphones, LogOut, Mail, Mic2, PhoneCall, Radio, ShieldCheck } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  Cloud,
+  Headphones,
+  KeyRound,
+  Loader2,
+  LogOut,
+  Mail,
+  Mic2,
+  PhoneCall,
+  Radio,
+  RefreshCw,
+  ShieldCheck,
+  Terminal
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import TalkPage from "./components/TalkPage";
 import { useTypewriter } from "./hooks/useTypewriter";
 import { useSessionStore } from "./store/sessionStore";
 import { profileFromSession, sendEmailCode, supabase, supabaseConfigured, verifyEmailCode } from "./services/supabase";
+import {
+  checkLocalGemma,
+  createCloudGemmaConnection,
+  createLocalGemmaConnection,
+  LOCAL_GEMMA_MODEL
+} from "./services/gemmaConnection";
 import { VOICE_PROFILES } from "./voiceProfiles";
 
 const LogoMark = () => (
@@ -187,7 +209,7 @@ const LoginPage = () => {
       return;
     }
     if (authProfile) {
-      navigate("/voice-select", { replace: true });
+      navigate("/setup", { replace: true });
     }
   }, [authProfile, logout, navigate]);
 
@@ -291,7 +313,7 @@ const LoginPage = () => {
             onClick={() => {
               guestTrialStartingRef.current = true;
               login(makeAuthProfile("guest"));
-              navigate("/voice-select", { replace: true });
+              navigate("/setup", { replace: true });
             }}
           >
             先体验一次对话
@@ -310,10 +332,180 @@ const LoginPage = () => {
   );
 };
 
+const GemmaSetupPage = () => {
+  const navigate = useNavigate();
+  const authProfile = useSessionStore((state) => state.authProfile);
+  const gemmaConnection = useSessionStore((state) => state.gemmaConnection);
+  const setGemmaConnection = useSessionStore((state) => state.setGemmaConnection);
+  const logout = useSessionStore((state) => state.logout);
+  const [checking, setChecking] = useState(false);
+  const [localResult, setLocalResult] = useState<Awaited<ReturnType<typeof checkLocalGemma>> | null>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [cloudStatus, setCloudStatus] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!authProfile) {
+      navigate("/login", { replace: true });
+    }
+  }, [authProfile, navigate]);
+
+  useEffect(() => {
+    if (gemmaConnection?.ready) {
+      navigate("/voice-select", { replace: true });
+    }
+  }, [gemmaConnection?.ready, navigate]);
+
+  const runLocalCheck = async () => {
+    setChecking(true);
+    setLocalResult(null);
+    try {
+      const result = await checkLocalGemma();
+      setLocalResult(result);
+      if (result.ok) {
+        setGemmaConnection(createLocalGemmaConnection());
+      }
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    void runLocalCheck();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const installCommand = `ollama pull ${LOCAL_GEMMA_MODEL}`;
+
+  const copyInstallCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(installCommand);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const useCloudApi = () => {
+    const value = apiKey.trim();
+    if (value.length < 12) {
+      setCloudStatus("请输入有效的 Gemma 4 API key。");
+      return;
+    }
+    setGemmaConnection(createCloudGemmaConnection(value));
+    setCloudStatus("已选择云端 Gemma 4。");
+  };
+
+  const leaveGuest = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
+
+  return (
+    <div className="setup-shell">
+      <header className="setup-header">
+        <div className="home-logo-link" aria-label="Lonely FM">
+          <Logo />
+        </div>
+        <button className="setup-quiet-button" type="button" onClick={leaveGuest}>
+          返回首页
+        </button>
+      </header>
+
+      <main className="setup-main" aria-labelledby="setup-title">
+        <section className="setup-copy">
+          <p className="section-eyebrow">Gemma first</p>
+          <h1 id="setup-title">先连接你的 Gemma 4。</h1>
+          <p>
+            Lonely FM 默认优先使用你电脑上的本地 Gemma 4。这样更私密，也更适合情绪陪伴场景。
+            如果你暂时没有本地模型，也可以输入自己的云端 API key。
+          </p>
+        </section>
+
+        <section className="setup-panel" aria-label="Gemma 连接方式">
+          <div className="setup-card setup-card-primary">
+            <div className="setup-card-heading">
+              <span className="setup-icon">
+                {checking ? <Loader2 className="setup-spin" size={22} /> : localResult?.ok ? <CheckCircle2 size={22} /> : <Terminal size={22} />}
+              </span>
+              <div>
+                <h2>本地 Ollama / Gemma 4</h2>
+                <p>
+                  {checking
+                    ? "正在检测这台电脑是否已经启动 Ollama..."
+                    : localResult?.ok
+                      ? "已检测到本地 Gemma 4，可以进入频道。"
+                      : "没有检测到可用的本地 Gemma 4。"}
+                </p>
+              </div>
+            </div>
+
+            {localResult && !localResult.ok && (
+              <div className="setup-guidance">
+                <div className="setup-alert">
+                  <AlertCircle size={18} />
+                  <span>
+                    {!localResult.ollamaAvailable
+                      ? "请先安装并启动 Ollama。"
+                      : "Ollama 已启动，但还没有 Gemma 4 12B MLX。"}
+                  </span>
+                </div>
+                <div className="setup-command">
+                  <code>{installCommand}</code>
+                  <button type="button" onClick={copyInstallCommand}>
+                    {copied ? "已复制" : "复制"}
+                  </button>
+                </div>
+                <a className="setup-link" href="https://ollama.com/download" target="_blank" rel="noreferrer">
+                  下载 Ollama
+                </a>
+              </div>
+            )}
+
+            <button className="setup-action" type="button" onClick={() => void runLocalCheck()} disabled={checking}>
+              <RefreshCw size={17} />
+              {checking ? "检测中..." : "重新检测本地 Gemma"}
+            </button>
+          </div>
+
+          <div className="setup-card">
+            <div className="setup-card-heading">
+              <span className="setup-icon">
+                <Cloud size={22} />
+              </span>
+              <div>
+                <h2>云端 Gemma 4 API</h2>
+                <p>没有本地模型时，可以使用自己的 API key。适合手机、平板或临时测试。</p>
+              </div>
+            </div>
+
+            <label className="setup-api-field">
+              <KeyRound size={17} aria-hidden="true" />
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(event) => setApiKey(event.target.value)}
+                placeholder="输入 Gemma 4 API key"
+                autoComplete="off"
+              />
+            </label>
+            {cloudStatus && <p className="setup-status">{cloudStatus}</p>}
+            <button className="setup-action setup-action-dark" type="button" onClick={useCloudApi}>
+              使用云端 API 继续
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+};
+
 const VoiceSelectPage = () => {
   const navigate = useNavigate();
   const setSelectedVoice = useSessionStore((state) => state.setSelectedVoice);
   const authProfile = useSessionStore((state) => state.authProfile);
+  const gemmaConnection = useSessionStore((state) => state.gemmaConnection);
   const clearSelectedVoice = useSessionStore((state) => state.clearSelectedVoice);
   const logout = useSessionStore((state) => state.logout);
   const accountMenuRef = useRef<HTMLDivElement>(null);
@@ -323,8 +515,10 @@ const VoiceSelectPage = () => {
   useEffect(() => {
     if (!authProfile) {
       navigate("/login", { replace: true });
+    } else if (!gemmaConnection?.ready) {
+      navigate("/setup", { replace: true });
     }
-  }, [authProfile, navigate]);
+  }, [authProfile, gemmaConnection?.ready, navigate]);
 
   useEffect(() => {
     if (!accountMenuOpen) return;
@@ -428,6 +622,7 @@ const App = () => {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/setup" element={<GemmaSetupPage />} />
       <Route path="/voice-select" element={<VoiceSelectPage />} />
       <Route path="/talk" element={<TalkPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />

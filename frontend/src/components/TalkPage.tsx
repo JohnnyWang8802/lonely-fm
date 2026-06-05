@@ -29,6 +29,7 @@ const TalkPage = () => {
   const [callStatus, setCallStatus] = useState<"connecting" | "active">("connecting");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const authProfile = useSessionStore((state) => state.authProfile);
+  const gemmaConnection = useSessionStore((state) => state.gemmaConnection);
   const selectedVoice = useSessionStore((state) => state.selectedVoice);
   const connected = useSessionStore((state) => state.connected);
   const listening = useSessionStore((state) => state.listening);
@@ -43,8 +44,14 @@ const TalkPage = () => {
   useDocumentTheme(darkMode);
 
   useEffect(() => {
-    if (!authProfile || !selectedVoice) navigate("/voice-select", { replace: true });
-  }, [authProfile, navigate, selectedVoice]);
+    if (!authProfile) {
+      navigate("/login", { replace: true });
+    } else if (!gemmaConnection?.ready) {
+      navigate("/setup", { replace: true });
+    } else if (!selectedVoice) {
+      navigate("/voice-select", { replace: true });
+    }
+  }, [authProfile, gemmaConnection?.ready, navigate, selectedVoice]);
 
   useEffect(() => {
     void unlockAudioPlayback();

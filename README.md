@@ -77,6 +77,8 @@ VITE_SUPABASE_ANON_KEY=...
 
 For local backend preview with Vercel or a static frontend, keep the backend running locally and point those values to a secure tunnel or local development URL.
 
+The frontend includes a `/setup` step before voice selection. It checks the tester's own machine for Ollama at `http://127.0.0.1:11434/api/tags` and looks for `gemma4:12b-mlx`. If local Gemma is not ready, the page shows the Ollama install path, the `ollama pull gemma4:12b-mlx` command, and a cloud Gemma API key option.
+
 ## Emotion Recognition
 
 Lonely FM uses Hume Expression Measurement when `HUME_API_KEY` is configured:

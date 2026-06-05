@@ -32,9 +32,11 @@ export const useWebSocket = () => {
   const emotionPrimaryRef = useRef("calm");
   const selectedVoiceRef = useRef(useSessionStore.getState().selectedVoice);
   const authProfileRef = useRef(useSessionStore.getState().authProfile);
+  const gemmaConnectionRef = useRef(useSessionStore.getState().gemmaConnection);
   const sessionId = useSessionStore((state) => state.sessionId);
   const authProfile = useSessionStore((state) => state.authProfile);
   const selectedVoice = useSessionStore((state) => state.selectedVoice);
+  const gemmaConnection = useSessionStore((state) => state.gemmaConnection);
   const muted = useSessionStore((state) => state.muted);
   const emotion = useSessionStore((state) => state.emotion);
   const setConnected = useSessionStore((state) => state.setConnected);
@@ -90,6 +92,10 @@ export const useWebSocket = () => {
   }, [selectedVoice]);
 
   useEffect(() => {
+    gemmaConnectionRef.current = gemmaConnection;
+  }, [gemmaConnection]);
+
+  useEffect(() => {
     authProfileRef.current = authProfile;
   }, [authProfile]);
 
@@ -97,13 +103,18 @@ export const useWebSocket = () => {
     (message: ClientOutboundMessage): ClientMessage => {
       const voice = selectedVoiceRef.current;
       const profile = authProfileRef.current;
+      const gemma = gemmaConnectionRef.current;
       return {
         ...message,
         session_id: sessionId,
         user_id: profile?.id,
         access_token: profile?.accessToken,
         voice_id: voice?.voiceId,
-        voice_profile_id: voice?.id
+        voice_profile_id: voice?.id,
+        gemma_mode: gemma?.mode,
+        gemma_model: gemma?.model,
+        gemma_base_url: gemma?.baseUrl,
+        gemma_api_key: gemma?.mode === "cloud" ? gemma.apiKey : undefined
       } as ClientMessage;
     },
     [sessionId]

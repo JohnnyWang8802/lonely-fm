@@ -1,10 +1,19 @@
 import { create } from "zustand";
 import { supabase } from "../services/supabase";
-import type { AuthProfile, EmotionData, MemoryCard, ReplyAudioChunk, TranscriptLine, VoiceProfile } from "../types";
+import type {
+  AuthProfile,
+  EmotionData,
+  GemmaConnection,
+  MemoryCard,
+  ReplyAudioChunk,
+  TranscriptLine,
+  VoiceProfile
+} from "../types";
 
 interface SessionState {
   sessionId: string;
   authProfile: AuthProfile | null;
+  gemmaConnection: GemmaConnection | null;
   selectedVoice: VoiceProfile | null;
   connected: boolean;
   reconnecting: boolean;
@@ -20,6 +29,7 @@ interface SessionState {
   memories: MemoryCard[];
   login: (profile: AuthProfile) => void;
   logout: () => void;
+  setGemmaConnection: (connection: GemmaConnection | null) => void;
   setSelectedVoice: (voice: VoiceProfile) => void;
   clearSelectedVoice: () => void;
   setConnected: (connected: boolean) => void;
@@ -68,9 +78,31 @@ const persistAuthProfile = (profile: AuthProfile | null): void => {
   }
 };
 
+const readStoredGemmaConnection = (): GemmaConnection | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const value = window.localStorage.getItem("lonelyfm.gemma.connection");
+    if (!value) return null;
+    const connection = JSON.parse(value) as GemmaConnection;
+    return connection.ready ? connection : null;
+  } catch {
+    return null;
+  }
+};
+
+const persistGemmaConnection = (connection: GemmaConnection | null): void => {
+  if (typeof window === "undefined") return;
+  if (connection?.ready) {
+    window.localStorage.setItem("lonelyfm.gemma.connection", JSON.stringify(connection));
+  } else {
+    window.localStorage.removeItem("lonelyfm.gemma.connection");
+  }
+};
+
 export const useSessionStore = create<SessionState>((set) => ({
   sessionId: createSessionId(),
   authProfile: readStoredAuthProfile(),
+  gemmaConnection: readStoredGemmaConnection(),
   selectedVoice: null,
   connected: false,
   reconnecting: false,
@@ -105,6 +137,7 @@ export const useSessionStore = create<SessionState>((set) => ({
     persistAuthProfile(null);
     set({
       authProfile: null,
+      gemmaConnection: null,
       selectedVoice: null,
       currentAiText: "",
       lastReplyAudio: [],
@@ -123,6 +156,11 @@ export const useSessionStore = create<SessionState>((set) => ({
       ],
       lastError: null
     });
+    persistGemmaConnection(null);
+  },
+  setGemmaConnection: (gemmaConnection) => {
+    persistGemmaConnection(gemmaConnection);
+    set({ gemmaConnection });
   },
   setSelectedVoice: (selectedVoice) =>
     set({

@@ -37,6 +37,17 @@ export interface AuthProfile {
   accessToken?: string;
 }
 
+export type GemmaConnectionMode = "local" | "cloud";
+
+export interface GemmaConnection {
+  mode: GemmaConnectionMode;
+  ready: boolean;
+  model?: string;
+  baseUrl?: string;
+  apiKey?: string;
+  checkedAt: string;
+}
+
 export type VoiceProfileId = "linyu" | "awan";
 
 export interface VoiceProfile {
@@ -78,6 +89,10 @@ export interface ClientMessageBase {
   access_token?: string;
   voice_id?: string;
   voice_profile_id?: VoiceProfileId;
+  gemma_mode?: GemmaConnectionMode;
+  gemma_model?: string;
+  gemma_base_url?: string;
+  gemma_api_key?: string;
 }
 
 export type ClientMessage =

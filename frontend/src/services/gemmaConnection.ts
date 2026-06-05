@@ -1,6 +1,6 @@
 import type { GemmaConnection } from "../types";
 
-export const LOCAL_GEMMA_MODEL = "gemma4:latest";
+export const LOCAL_GEMMA_MODEL = "gemma4:12b-mlx";
 export const LOCAL_OLLAMA_BASE_URL = "http://127.0.0.1:11434";
 
 export interface LocalGemmaCheck {
@@ -53,7 +53,7 @@ export const checkLocalGemma = async (): Promise<LocalGemmaCheck> => {
       error: modelAvailable ? undefined : "没有找到 Gemma 4 模型",
       setupHint: modelAvailable
         ? undefined
-        : "如果你已经装了 Gemma 4，请确认模型名称以 gemma4 开头，例如 gemma4:latest 或 gemma4:12b-mlx。"
+        : "如果你已经装了 Gemma 4，请确认模型名称以 gemma4 开头，例如 gemma4:12b-mlx、gemma4:e4b 或 gemma4:21b。"
     };
   } catch (error) {
     const isTimeout = error instanceof DOMException && error.name === "AbortError";

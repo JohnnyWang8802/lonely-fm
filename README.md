@@ -77,13 +77,13 @@ VITE_SUPABASE_ANON_KEY=...
 
 For local backend preview with Vercel or a static frontend, keep the backend running locally and point those values to a secure tunnel or local development URL.
 
-The frontend includes a `/setup` step before voice selection. It checks the tester's own machine for Ollama at `http://127.0.0.1:11434/api/tags` and accepts any local model whose tag starts with `gemma4`, such as `gemma4:latest` or `gemma4:12b-mlx`. When testing from the Vercel HTTPS site, Ollama must allow the production origin first:
+The frontend includes a `/setup` step before voice selection. It checks the tester's own machine for Ollama at `http://127.0.0.1:11434/api/tags` and accepts any local model whose tag starts with `gemma4`, such as `gemma4:12b-mlx`, `gemma4:e4b`, or `gemma4:21b`. When testing from the Vercel HTTPS site, Ollama must allow the production origin first:
 
 ```bash
 launchctl setenv OLLAMA_ORIGINS "https://lonely-fm.vercel.app,http://localhost:5173,http://127.0.0.1:5173"
 ```
 
-After setting the origin, quit and reopen Ollama, then run `ollama pull gemma4:latest` if no Gemma 4 model is installed. The `/setup` page also keeps a cloud Gemma API key option for testers who do not have a local model.
+After setting the origin, quit and reopen Ollama, then run `ollama pull gemma4:12b-mlx` if no Gemma 4 model is installed. The `/setup` page also keeps a cloud Gemma API key option for testers who do not have a local model.
 
 ## Emotion Recognition
 

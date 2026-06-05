@@ -45,9 +45,9 @@ CUE_TEXT_BY_EMOTION = {
 }
 SENTENCE_ENDINGS = frozenset("。！？!?.")
 EARLY_SPEECH_BREAKS = frozenset("，,；;：:、")
-MIN_EARLY_SPEECH_CHARS = 6
-MAX_FIRST_SPEECH_UNIT_CHARS = 10
-MAX_FOLLOWUP_SPEECH_UNIT_CHARS = 34
+MIN_EARLY_SPEECH_CHARS = 5
+MAX_FIRST_SPEECH_UNIT_CHARS = 8
+MAX_FOLLOWUP_SPEECH_UNIT_CHARS = 30
 TARGET_REPLY_CHARS = 64
 MAX_REPLY_CHARS = 96
 CHUNK_SIZE = 8
@@ -352,7 +352,7 @@ def build_speech_unit(
         return None
     if clean_text[-1] not in SENTENCE_ENDINGS and clean_text[-1] not in EARLY_SPEECH_BREAKS:
         clean_text = f"{clean_text}，"
-    pause_ms = 260 if clean_text[-1] in SENTENCE_ENDINGS else 140
+    pause_ms = 110 if clean_text[-1] in SENTENCE_ENDINGS else 45
     unit_emotion = dict(base_emotion)
     if "?" in clean_text or "？" in clean_text:
         unit_emotion["primary"] = "calm"
@@ -672,6 +672,7 @@ async def handle_text(
     # Streaming path — Gemma needed
     history = await history_task
     memories = await memories_task
+    tts_service.prewarm_transport(voice_id)
     prompt = build_prompt(emotion, history, text, prosody, turn_signals, memories, companion_name)
     is_first_turn = not history
 
@@ -733,6 +734,7 @@ async def chat(websocket: WebSocket) -> None:
                     active_voice_id = message_voice_id
                 active_companion_name = message_companion_name
                 tts_service.prewarm_google_client()
+                tts_service.prewarm_transport(active_voice_id)
                 tts_service.prewarm_cue_audio(voice_id=active_voice_id)
                 tts_service.prewarm_cue_audio(FIRST_RESPONSE_CUE_TEXT, active_voice_id)
                 for cue_text in CUE_TEXT_BY_EMOTION.values():

@@ -78,6 +78,7 @@ class TtsService:
         self._google_tts_client: Any | None = None
         self._google_tts_client_lock = threading.Lock()
         self._google_prewarm_started = False
+        self._transport_prewarm_tasks: dict[str, asyncio.Task[None]] = {}
 
     def get_cached_cue_audio(self, text: str = "嗯。", voice_id: str | None = None) -> str | None:
         key = self._cue_cache_key(text, voice_id)
@@ -123,6 +124,19 @@ class TtsService:
         self._google_prewarm_started = True
         asyncio.create_task(self._prewarm_google_client())
 
+    def prewarm_transport(self, voice_id: str | None = None) -> None:
+        """Warm the MiniMax HTTP connection without sending audio to the client."""
+        settings = get_settings()
+        if settings.tts_provider.lower() != "minimax" or not settings.minimax_api_key:
+            return
+        effective_voice_id = self._minimax_voice_id(voice_id)
+        existing_task = self._transport_prewarm_tasks.get(effective_voice_id)
+        if existing_task and not existing_task.done():
+            return
+        self._transport_prewarm_tasks[effective_voice_id] = asyncio.create_task(
+            self._prewarm_transport(effective_voice_id)
+        )
+
     def prewarm_reply_audio(self, text: str, voice_id: str | None = None) -> None:
         key = self._reply_cache_key(text, voice_id)
         if self.get_cached_reply_audio(text, voice_id):
@@ -159,6 +173,14 @@ class TtsService:
             await asyncio.to_thread(self._get_google_tts_client)
         except Exception as exc:
             print(f"Google TTS client prewarm failed: {exc}")
+
+    async def _prewarm_transport(self, voice_id: str) -> None:
+        try:
+            await self._synthesize_with_minimax("好。", {"primary": "calm"}, voice_id)
+        except Exception as exc:
+            print(f"TTS transport prewarm failed: {exc}")
+        finally:
+            self._transport_prewarm_tasks.pop(voice_id, None)
 
     def _cue_cache_key(self, text: str, voice_id: str | None = None) -> str:
         return self._audio_cache_key(text, "cue", voice_id)

@@ -387,7 +387,7 @@ class GemmaService:
                 cleaned = cleaned[: punctuation_indexes[-1] + 1]
             else:
                 cleaned = f"{cleaned[:86].rstrip('，,、；; ')}。"
-        return cleaned or "这句我听见了，我们接着聊。"
+        return cleaned or "这句我没听完整，你把最后半句再说一次。"
 
     def _keep_brief_response(self, text: str) -> str:
         cleaned = text.strip()
@@ -437,11 +437,11 @@ class GemmaService:
             "没关系": "",
             "陪着你": "听你说",
             "需要放慢一点节奏": "确实有点累了",
-            "可以稍微停下来喘口气": "这份累我听见了",
-            "可以先歇一会儿": "这份累我听见了",
-            "可以歇一会儿": "这份累我听见了",
-            "是有点累，就让它这样就好": "这份累我听见了",
-            "就让它这样就好": "这份累我听见了",
+            "可以稍微停下来喘口气": "先把最累的那一块说出来",
+            "可以先歇一会儿": "先把最累的那一块说出来",
+            "可以歇一会儿": "先把最累的那一块说出来",
+            "是有点累，就让它这样就好": "先把最累的那一块说出来",
+            "就让它这样就好": "先把最累的那一块说出来",
             "没用这个感觉": "这个感觉",
             "能具体说说，是哪方面让你感觉特别卡住了吗": "先说哪件事让你这样看自己",
             "能具体说一下，是哪件事让你觉得值得聊聊呢": "先说今天最卡你的那一段",
@@ -466,7 +466,7 @@ class GemmaService:
         for source, target in replacements.items():
             cleaned = cleaned.replace(source, target)
         if not cleaned.strip(" 。！？!?，,、"):
-            return "这句我听见了，我们接着聊。"
+            return "这句我没听完整，你把最后半句再说一次。"
         return cleaned.strip()
 
     def _remove_question_ending(self, text: str) -> str:
@@ -479,7 +479,7 @@ class GemmaService:
             return "你好呀。我们接着聊。"
         first_clause = cleaned.replace("?", "？").split("？", 1)[0].strip(" ，,。")
         if not first_clause:
-            return "听见了。我们接着聊。"
+            return "我只听清前半句，你把后面那点再说一次。"
         if len(first_clause) <= 8:
             return f"{first_clause}。我们接着聊。"
         return f"{first_clause}。我跟得上。"
@@ -595,7 +595,7 @@ class GemmaService:
         if primary == "crisis":
             return "我在。现在先联系一个真实的人陪你，给信任的人发一句：我需要你。"
         if primary == "fatigue":
-            return "听见了。你先少扛一点，留一口气给自己。"
+            return "这不是普通的累，像是撑久了。先说最耗你的那一件事。"
         if primary == "joy":
             return "听起来状态不错。这个劲头挺好，我们接着聊。"
         if primary == "anxiety":
@@ -604,7 +604,7 @@ class GemmaService:
             return "听起来有点难受。但我们先抓住眼前这一小步。"
         if "今天好累" in user_text:
             return "辛苦了。先别复盘，挑最想说的一件事就好。"
-        return "我听着。你按自己的节奏说，我们接着来。"
+        return "这句我没听全。你把最关键的那半句再说一次。"
 
 
 gemma_service = GemmaService()

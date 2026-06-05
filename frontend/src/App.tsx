@@ -421,13 +421,7 @@ const LoginPage = () => {
       </section>
 
       <div className="login-visual" aria-hidden="true">
-        <div className="login-card-wrapper">
-          <img className="login-hero-img" src="/login-hero.png" alt="陪伴" />
-          <div className="login-float-cards">
-            <img className="login-float-card" src="/card-lamp.png" alt="深夜电台 温柔相伴" />
-            <img className="login-float-card" src="/card-plant.png" alt="记住你说过的每一句话" />
-          </div>
-        </div>
+        <img className="login-visual-img" src="/login-visual.png" alt="陪伴" />
       </div>
     </div>
   );

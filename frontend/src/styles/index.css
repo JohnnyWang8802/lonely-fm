@@ -452,54 +452,19 @@ svg {
 }
 
 .login-visual {
-  display: grid;
-  place-items: center;
+  position: relative;
   min-height: 100vh;
   overflow: hidden;
-  padding: clamp(20px, 3.6vw, 48px);
-  background: #eee3d6;
+  background: #f8f5ee;
+  padding: 0;
+  display: block;
 }
 
-.login-card-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 620px;
-  border-radius: 40px;
-  overflow: hidden;
-  box-shadow: 0 30px 80px rgba(52, 57, 35, 0.08);
-}
-
-.login-hero-img {
+.login-visual-img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: cover;
-  border-radius: 40px;
-}
-
-.login-float-cards {
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  z-index: 5;
-}
-
-.login-float-card {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease;
-}
-
-.login-float-card:hover {
-  transform: translateY(-4px);
 }
 
 .icon-button,

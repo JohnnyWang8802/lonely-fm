@@ -12,24 +12,24 @@ from routers.ws import answer_companion_intent, build_session_greeting, normaliz
 
 class CompanionIdentityTests(unittest.TestCase):
     def test_session_greeting_is_conversational(self) -> None:
-        greeting = build_session_greeting("林屿")
+        greeting = build_session_greeting("林宇")
         self.assertEqual(greeting, "嗨，我在呢。今天过得怎么样？")
         self.assertNotIn("接通", greeting)
 
     def test_linyu_recognizes_exact_name_and_stt_variants(self) -> None:
-        for heard_name in ("林屿", "林雨", "淋雨", "林宇", "林语", "林玉"):
-            normalized, addressed = normalize_companion_address(heard_name, "林屿")
+        for heard_name in ("林宇", "林屿", "林雨", "淋雨", "林语", "林玉"):
+            normalized, addressed = normalize_companion_address(heard_name, "林宇")
             self.assertTrue(addressed)
-            self.assertEqual(normalized, "林屿")
-            self.assertEqual(answer_companion_intent(normalized, [], "林屿"), "在呢，怎么了？")
+            self.assertEqual(normalized, "林宇")
+            self.assertEqual(answer_companion_intent(normalized, [], "林宇"), "在呢，怎么了？")
 
     def test_linyu_recognizes_name_at_start_of_a_turn(self) -> None:
-        normalized, addressed = normalize_companion_address("淋雨，我今天有点累", "林屿")
+        normalized, addressed = normalize_companion_address("淋雨，我今天有点累", "林宇")
         self.assertTrue(addressed)
-        self.assertEqual(normalized, "林屿，我今天有点累")
+        self.assertEqual(normalized, "林宇，我今天有点累")
 
     def test_weather_phrase_is_not_treated_as_a_name(self) -> None:
-        normalized, addressed = normalize_companion_address("淋雨了，有点冷", "林屿")
+        normalized, addressed = normalize_companion_address("淋雨了，有点冷", "林宇")
         self.assertFalse(addressed)
         self.assertEqual(normalized, "淋雨了，有点冷")
 
@@ -37,11 +37,11 @@ class CompanionIdentityTests(unittest.TestCase):
         prompt = build_prompt(
             {"primary": "calm", "confidence": 0.8, "speech_rate": "normal"},
             [],
-            "林屿，我今天有点累",
-            companion_name="林屿",
+            "林宇，我今天有点累",
+            companion_name="林宇",
         )
         system = str(prompt["system"])
-        self.assertIn('你始终清楚自己就是"林屿"', system)
+        self.assertIn('你始终清楚自己就是"林宇"', system)
         self.assertIn('不要反问这个名字是谁', system)
 
 

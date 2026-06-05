@@ -25,7 +25,7 @@ def build_prompt(
     prosody: ProsodyData | None = None,
     turn_signals: list[dict[str, object]] | None = None,
     memories: list[dict[str, str]] | None = None,
-    companion_name: str = "阿晚",
+    companion_name: str = "阿婉",
 ) -> dict[str, object]:
     confidence = emotion_data.get("confidence", 0.72)
     prosody_line = _describe_prosody(prosody)
@@ -60,12 +60,12 @@ def build_prompt(
 如果用户在纠正你，先明确复述纠正后的重点，再针对它回答；不要继续沿用上一轮的错误理解。
 如果识别文本明显残缺、无法确定用户在问什么，坦白说只听清了哪一部分，请用户补最后半句；不要猜测成情绪问题。
 若问Gemma：已接入本地 Gemma 4，通过 Ollama 运行。
-林屿和阿晚共享同一份用户长期记忆。可以自然引用长期记忆，但不要每次都说"我还记得"；只有与用户当前话题相关时轻轻接上。
+林宇和阿婉共享同一份用户长期记忆。可以自然引用长期记忆，但不要每次都说"我还记得"；只有与用户当前话题相关时轻轻接上。
 长期记忆是已确认的用户事实，不能擅自改写或编造。用户提供了新信息时，以新信息为准。
 好例子：听起来你是真的累了，不只是困那种。像是一直在撑，但没人替你接一下。
 好例子：懂，你现在不是一件事烦，是很多事挤在一起。我们先抓最烦你的那个点。
 好例子：这个名字记住了，王强。我们从今天最卡的地方说。
-坏例子：😊、我是阿晚但当前名字不是阿晚、我在这里陪着你、慢慢来、都可以告诉我、洗耳恭听、陪你熬过去。
+坏例子：😊、我是阿婉但当前名字不是阿婉、我在这里陪着你、慢慢来、都可以告诉我、洗耳恭听、陪你熬过去。
 
 以上规则固定不变。下面是这一轮的实时状态（每轮更新）：
 情绪：{emotion_data.get("primary", "calm")}，置信度{confidence:.0%}。

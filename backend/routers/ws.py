@@ -63,12 +63,12 @@ ALLOWED_VOICE_IDS = frozenset(
     }
 )
 VOICE_PROFILE_NAMES = {
-    "linyu": "林屿",
-    "awan": "阿晚",
+    "linyu": "林宇",
+    "awan": "阿婉",
 }
 COMPANION_NAME_ALIASES = {
-    "林屿": ("林屿", "林雨", "淋雨", "林宇", "林语", "林玉"),
-    "阿晚": ("阿晚", "阿婉", "阿宛", "啊晚"),
+    "林宇": ("林宇", "林屿", "林雨", "淋雨", "林语", "林玉"),
+    "阿婉": ("阿婉", "阿晚", "阿宛", "啊晚"),
 }
 DIRECT_ADDRESS_PREFIXES = (
     "你",
@@ -140,7 +140,7 @@ def resolve_voice_id(value: object) -> str | None:
 
 
 def resolve_companion_name(value: object) -> str:
-    return VOICE_PROFILE_NAMES.get(str(value or "").strip(), "阿晚")
+    return VOICE_PROFILE_NAMES.get(str(value or "").strip(), "阿婉")
 
 
 def build_session_greeting(companion_name: str) -> str:
@@ -172,7 +172,7 @@ def is_direct_companion_call(text: str, companion_name: str) -> bool:
     return tail in DIRECT_ADDRESS_ONLY_TAILS
 
 
-def answer_companion_intent(text: str, history: list[dict[str, str]], companion_name: str = "阿晚") -> str | None:
+def answer_companion_intent(text: str, history: list[dict[str, str]], companion_name: str = "阿婉") -> str | None:
     normalized = text.lower().replace(" ", "")
 
     if is_direct_companion_call(normalized, companion_name):
@@ -184,15 +184,17 @@ def answer_companion_intent(text: str, history: list[dict[str, str]], companion_
         "你叫啥",
         "你名字",
         "你叫什么名字",
+        "你是阿婉吗",
         "你是阿晚吗",
+        "你是林宇吗",
         "你是林屿吗",
         "你是淋雨吗",
         "你是林雨吗",
     )
     if any(question in normalized for question in identity_questions):
-        if companion_name == "林屿":
-            return "我是林屿，林木的林，岛屿的屿。刚才听成淋雨也挺像。"
-        return "我是阿晚。你刚才是想确认我是谁，还是觉得这个声音有点不一样？"
+        if companion_name == "林宇":
+            return "我是林宇，双木林，宇宙的宇。像月光一样陪你把情绪说完。"
+        return "我是阿婉。你刚才是想确认我是谁，还是觉得这个声音有点不一样？"
 
     # Only keep deterministic social acknowledgements here. Emotional or contextual
     # turns must reach Gemma, otherwise a keyword match can answer the wrong question.
@@ -628,7 +630,7 @@ async def handle_text(
     user_text: str,
     prosody: dict[str, Any] | None = None,
     voice_id: str | None = None,
-    companion_name: str = "阿晚",
+    companion_name: str = "阿婉",
 ) -> None:
     text = user_text.strip()
     if not text:
@@ -686,7 +688,7 @@ async def chat(websocket: WebSocket) -> None:
     await session_store.connect()
     active_turn_task: asyncio.Task[None] | None = None
     active_voice_id: str | None = None
-    active_companion_name = "阿晚"
+    active_companion_name = "阿婉"
 
     def observe_turn_task(task: asyncio.Task[None]) -> None:
         if task.cancelled():

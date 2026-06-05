@@ -55,6 +55,15 @@ const HomePage = () => {
   const authProfile = useSessionStore((state) => state.authProfile);
   const logout = useSessionStore((state) => state.logout);
 
+  // Dynamic background color matching video edges
+  const [videoBgColor, setVideoBgColor] = useState<string>("#f1e1d4");
+
+  // Video references and states for scrubbing
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const targetTimeRef = useRef<number>(0);
+  const prevXRef = useRef<number | null>(null);
+  const seekingRef = useRef<boolean>(false);
+
   useEffect(() => {
     if (authProfile?.provider === "guest") logout();
   }, [authProfile?.provider, logout]);
@@ -65,30 +74,101 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let frame = 0;
-    const onMove = (event: MouseEvent) => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const mx = (event.clientX / window.innerWidth - 0.5) * 2;
-        const my = (event.clientY / window.innerHeight - 0.5) * 2;
-        const el = heroRef.current;
-        if (el) {
-          el.style.setProperty("--hero-mx", mx.toFixed(3));
-          el.style.setProperty("--hero-my", my.toFixed(3));
-        }
-      });
+    const handleMouseMove = (event: MouseEvent) => {
+      // 1. 3D perspective rotation on hover
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          const mx = (event.clientX / window.innerWidth - 0.5) * 2;
+          const my = (event.clientY / window.innerHeight - 0.5) * 2;
+          const el = heroRef.current;
+          if (el) {
+            el.style.setProperty("--hero-mx", mx.toFixed(3));
+            el.style.setProperty("--hero-my", my.toFixed(3));
+          }
+        });
+      }
+
+      // 2. Video scrubbing based on mouse movement
+      const video = videoRef.current;
+      if (!video || isNaN(video.duration)) return;
+
+      const currentX = event.clientX;
+      if (prevXRef.current === null) {
+        prevXRef.current = currentX;
+        return;
+      }
+
+      const delta = currentX - prevXRef.current;
+      prevXRef.current = currentX;
+
+      const SENSITIVITY = 0.8;
+      const timeOffset = (delta / window.innerWidth) * SENSITIVITY * video.duration;
+
+      let newTime = targetTimeRef.current + timeOffset;
+      if (newTime < 0) newTime = 0;
+      if (newTime > video.duration) newTime = video.duration;
+
+      targetTimeRef.current = newTime;
+
+      if (!seekingRef.current) {
+        seekingRef.current = true;
+        video.currentTime = newTime;
+      }
     };
-    window.addEventListener("mousemove", onMove);
+
+    window.addEventListener("mousemove", handleMouseMove);
     return () => {
-      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [authProfile, logout]);
+
+  const handleSeeked = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (Math.abs(video.currentTime - targetTimeRef.current) > 0.01) {
+      video.currentTime = targetTimeRef.current;
+    } else {
+      seekingRef.current = false;
+    }
+  };
+
+  const extractColor = (video: HTMLVideoElement) => {
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 10;
+      canvas.height = 10;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, 10, 10);
+        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+        if (r > 0 || g > 0 || b > 0) {
+          const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+          setVideoBgColor(hex);
+          console.log("Extracted home hero video edge color:", hex);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to extract color from video:", err);
+    }
+  };
+
+  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    targetTimeRef.current = video.currentTime;
+    extractColor(video);
+  };
+
+  const handleCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    extractColor(e.currentTarget);
+  };
 
   return (
-    <div className="home-shell">
-      <header className="home-nav">
+    <div className="home-shell" style={{ backgroundColor: videoBgColor }}>
+      <header className="home-nav" style={{ backgroundColor: "transparent" }}>
         <div className="home-logo-link" aria-label="Lonely FM 首页">
           <Logo />
         </div>
@@ -104,8 +184,18 @@ const HomePage = () => {
       <main>
         <section className="home-hero" aria-labelledby="home-title" ref={heroRef}>
           <div className="hero-bg" aria-hidden="true">
-            <div className="hero-bg-art" />
-            <img className="hero-img" src="/hero.webp" alt="" />
+            <div className="hero-bg-art" style={{ backgroundColor: videoBgColor }} />
+            <video
+              ref={videoRef}
+              src="/companion.mp4"
+              muted
+              playsInline
+              preload="auto"
+              onLoadedMetadata={handleLoadedMetadata}
+              onCanPlay={handleCanPlay}
+              onSeeked={handleSeeked}
+              className="hero-img"
+            />
             <div className="hero-scrim" />
           </div>
 
@@ -306,7 +396,11 @@ const LoginPage = () => {
             </button>
           </form>
 
-          <div className="login-divider" aria-hidden="true" />
+          <div className="login-divider-container" aria-hidden="true">
+            <span className="login-divider-line"></span>
+            <span className="login-divider-text">或</span>
+            <span className="login-divider-line"></span>
+          </div>
           <button
             className="login-skip"
             type="button"
@@ -326,7 +420,13 @@ const LoginPage = () => {
       </section>
 
       <div className="login-visual" aria-hidden="true">
-        <img className="login-visual-img" src="/login-grid.png" alt="" />
+        <div className="login-card-wrapper">
+          <img className="login-hero-img" src="/login-hero.png" alt="陪伴" />
+          <div className="login-float-cards">
+            <img className="login-float-card" src="/card-lamp.png" alt="深夜电台 温柔相伴" />
+            <img className="login-float-card" src="/card-plant.png" alt="记住你说过的每一句话" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -510,6 +610,7 @@ const VoiceSelectPage = () => {
   const logout = useSessionStore((state) => state.logout);
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string>("linyu");
   const accountInitial = Array.from(authProfile?.name || authProfile?.email || "访")[0]?.toUpperCase() || "访";
 
   useEffect(() => {
@@ -546,13 +647,28 @@ const VoiceSelectPage = () => {
     navigate("/login", { replace: true });
   };
 
+  const companionDetails: Record<string, { subtitle: string; description: string; tags: string[]; image: string }> = {
+    linyu: {
+      subtitle: "深夜电台 / 安静、克制、善于倾听",
+      description: "像月光一样，陪你把情绪慢慢说完。",
+      tags: ["理性温柔", "深度倾听", "治愈陪伴"],
+      image: "/linyu-card.png"
+    },
+    awan: {
+      subtitle: "温柔陪伴 / 轻松、治愈、会接住你的话",
+      description: "像夜灯一样，在你需要的时候一直都在。",
+      tags: ["温暖治愈", "轻松愉快", "贴心陪伴"],
+      image: "/awan-card.png"
+    }
+  };
+
   return (
-    <div className="voice-select-shell restored-voice-select-shell">
-      <header className="restored-voice-select-header">
+    <div className="voice-select-shell custom-voice-select-shell">
+      <header className="custom-voice-select-header">
         <Link to="/" aria-label="返回 Lonely FM 首页"><Logo /></Link>
         <div className="account-menu" ref={accountMenuRef}>
           <button
-            className="account-avatar restored-avatar"
+            className="account-avatar custom-avatar"
             type="button"
             aria-label={`当前登录账号：${authProfile?.email ?? authProfile?.name ?? "访客"}`}
             aria-expanded={accountMenuOpen}
@@ -561,7 +677,7 @@ const VoiceSelectPage = () => {
             {accountInitial}
           </button>
           {accountMenuOpen && (
-            <div className="account-popover restored-account-popover">
+            <div className="account-popover custom-account-popover">
               <div className="account-popover-identity">
                 <span className="account-popover-avatar">{accountInitial}</span>
                 <div>
@@ -583,21 +699,85 @@ const VoiceSelectPage = () => {
         </div>
       </header>
 
-      <main className="restored-voice-select-main" aria-label="选择一个声音">
-        <div className="restored-voice-panel" role="list" aria-label="声音选择">
-          {VOICE_PROFILES.map((voice) => (
-            <button
-              key={voice.id}
-              className={`restored-voice-choice restored-voice-${voice.gender}`}
-              type="button"
-              onClick={() => handleSelect(voice)}
-              role="listitem"
-              aria-label={`接通${voice.displayName}`}
-            >
-              <PhoneCall size={25} aria-hidden="true" />
-              <strong>{voice.displayName}</strong>
-            </button>
-          ))}
+      <main className="custom-voice-select-main">
+        <div className="voice-select-heading">
+          <h1>选择一位陪伴你的声音</h1>
+          <p className="voice-select-subheading">不同的声音，不同的陪伴方式，总有一位懂你此刻的心情。</p>
+        </div>
+
+        <div className="voice-cards-container">
+          {VOICE_PROFILES.map((voice) => {
+            const detail = companionDetails[voice.id];
+            const isSelected = selectedId === voice.id;
+            if (!detail) return null;
+
+            return (
+              <div
+                key={voice.id}
+                className={`voice-card voice-card-${voice.id} ${isSelected ? "is-selected" : ""}`}
+                onClick={() => setSelectedId(voice.id)}
+                onDoubleClick={() => handleSelect(voice)}
+              >
+                {voice.id === "linyu" ? (
+                  <>
+                    <div className="voice-card-content">
+                      <div className="voice-card-name-row">
+                        <Headphones className="voice-card-headphone-icon" size={24} />
+                        <h2>{voice.displayName}</h2>
+                      </div>
+                      <p className="voice-card-subtitle">{detail.subtitle}</p>
+                      <p className="voice-card-description">{detail.description}</p>
+                      <div className="voice-card-tags">
+                        {detail.tags.map((tag) => (
+                          <span key={tag} className="voice-card-tag">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="voice-card-media-wrapper">
+                      <img className="voice-card-img" src={detail.image} alt={voice.displayName} />
+                      <div className="voice-card-fade-overlay fade-to-left" />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="voice-card-media-wrapper">
+                      <img className="voice-card-img" src={detail.image} alt={voice.displayName} />
+                      <div className="voice-card-fade-overlay fade-to-right" />
+                    </div>
+                    <div className="voice-card-content">
+                      <div className="voice-card-name-row">
+                        <Headphones className="voice-card-headphone-icon" size={24} />
+                        <h2>{voice.displayName}</h2>
+                      </div>
+                      <p className="voice-card-subtitle">{detail.subtitle}</p>
+                      <p className="voice-card-description">{detail.description}</p>
+                      <div className="voice-card-tags">
+                        {detail.tags.map((tag) => (
+                          <span key={tag} className="voice-card-tag">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <button
+                  className="voice-card-arrow-btn"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelect(voice);
+                  }}
+                  aria-label={`选择${voice.displayName}并开始对话`}
+                >
+                  <ArrowRight size={20} />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>

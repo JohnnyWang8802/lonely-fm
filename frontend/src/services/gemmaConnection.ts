@@ -1,6 +1,6 @@
 import type { GemmaConnection } from "../types";
 
-export const LOCAL_GEMMA_MODEL = "gemma4:12b-mlx";
+export const LOCAL_GEMMA_MODEL = "gemma4:latest";
 export const LOCAL_OLLAMA_BASE_URL = "http://127.0.0.1:11434";
 
 export interface LocalGemmaCheck {

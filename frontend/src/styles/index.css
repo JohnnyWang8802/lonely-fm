@@ -709,6 +709,13 @@ svg {
   font-weight: 750;
 }
 
+.setup-hint {
+  margin: -2px 0 0;
+  color: rgba(32, 35, 25, 0.58);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
 .setup-command {
   min-height: 50px;
   display: grid;

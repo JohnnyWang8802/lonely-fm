@@ -458,7 +458,7 @@ const GemmaSetupPage = () => {
       const result = await checkLocalGemma();
       setLocalResult(result);
       if (result.ok) {
-        setGemmaConnection(createLocalGemmaConnection());
+        setGemmaConnection(createLocalGemmaConnection(result.selectedModel));
       }
     } finally {
       setChecking(false);
@@ -471,10 +471,21 @@ const GemmaSetupPage = () => {
   }, []);
 
   const installCommand = `ollama pull ${LOCAL_GEMMA_MODEL}`;
+  const originCommand = `launchctl setenv OLLAMA_ORIGINS "https://lonely-fm.vercel.app,http://localhost:5173,http://127.0.0.1:5173"`;
 
   const copyInstallCommand = async () => {
     try {
       await navigator.clipboard.writeText(installCommand);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const copyOriginCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(originCommand);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -530,7 +541,7 @@ const GemmaSetupPage = () => {
                   {checking
                     ? "正在检测这台电脑是否已经启动 Ollama..."
                     : localResult?.ok
-                      ? "已检测到本地 Gemma 4，可以进入频道。"
+                      ? `已检测到 ${localResult.selectedModel ?? "本地 Gemma 4"}，可以进入频道。`
                       : "没有检测到可用的本地 Gemma 4。"}
                 </p>
               </div>
@@ -541,11 +552,18 @@ const GemmaSetupPage = () => {
                 <div className="setup-alert">
                   <AlertCircle size={18} />
                   <span>
-                    {!localResult.ollamaAvailable
-                      ? "请先安装并启动 Ollama。"
-                      : "Ollama 已启动，但还没有 Gemma 4 12B MLX。"}
+                    {localResult.error}
                   </span>
                 </div>
+                {localResult.setupHint && <p className="setup-hint">{localResult.setupHint}</p>}
+                {!localResult.ollamaAvailable && (
+                  <div className="setup-command">
+                    <code>{originCommand}</code>
+                    <button type="button" onClick={copyOriginCommand}>
+                      {copied ? "已复制" : "复制"}
+                    </button>
+                  </div>
+                )}
                 <div className="setup-command">
                   <code>{installCommand}</code>
                   <button type="button" onClick={copyInstallCommand}>

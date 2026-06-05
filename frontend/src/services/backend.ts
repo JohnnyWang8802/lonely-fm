@@ -1,9 +1,12 @@
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
+const LOCAL_BACKEND_HTTP_BASE = "http://127.0.0.1:8001";
+const LOCAL_BACKEND_WS_BASE = "ws://127.0.0.1:8001";
+
 export const getApiUrl = (path: string): string => {
   const base = import.meta.env.VITE_API_BASE_URL as string | undefined;
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  return base ? `${trimTrailingSlash(base)}${cleanPath}` : cleanPath;
+  return `${trimTrailingSlash(base || LOCAL_BACKEND_HTTP_BASE)}${cleanPath}`;
 };
 
 export const getWsUrl = (path: string): string => {
@@ -18,6 +21,5 @@ export const getWsUrl = (path: string): string => {
     return `${trimTrailingSlash(url.toString())}${cleanPath}`;
   }
 
-  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  return `${protocol}://${window.location.host}${cleanPath}`;
+  return `${LOCAL_BACKEND_WS_BASE}${cleanPath}`;
 };

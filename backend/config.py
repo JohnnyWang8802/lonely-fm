@@ -56,7 +56,10 @@ class Settings:
     secret_key: str = getenv("SECRET_KEY", "dev-secret")
     cors_origins: list[str] = [
         origin.strip()
-        for origin in getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+        for origin in getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173,https://lonely-fm.vercel.app",
+        ).split(",")
         if origin.strip()
     ]
     demo_mode: bool = getenv("DEMO_MODE", "true").lower() != "false"

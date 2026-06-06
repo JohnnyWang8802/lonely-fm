@@ -282,6 +282,20 @@ const makeAuthProfile = (provider: "guest") => ({
   signedInAt: new Date().toISOString()
 });
 
+const getReadableAuthError = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error || "");
+  if (/sending confirmation email/i.test(message)) {
+    return "邮件服务发送失败：请检查 Supabase Auth 的 SMTP/Resend 配置。";
+  }
+  if (/redirect/i.test(message)) {
+    return "登录跳转地址未允许：请把 Vercel 域名加入 Supabase Redirect URLs。";
+  }
+  if (/rate/i.test(message)) {
+    return "请求太频繁，请稍后再试。";
+  }
+  return message ? `登录邮件发送失败：${message}` : "登录邮件发送失败，请稍后重试。";
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const login = useSessionStore((state) => state.login);
@@ -320,8 +334,9 @@ const LoginPage = () => {
       setEmail(normalizedEmail);
       setCodeSent(true);
       setStatus("登录邮件已发送。收到 6 位验证码就输入；如果是登录链接，直接点开。");
-    } catch {
-      setStatus("登录邮件发送失败，请稍后重试。");
+    } catch (error) {
+      console.error("Supabase email login failed", error);
+      setStatus(getReadableAuthError(error));
     } finally {
       setSubmitting(false);
     }

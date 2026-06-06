@@ -282,8 +282,17 @@ const makeAuthProfile = (provider: "guest") => ({
   signedInAt: new Date().toISOString()
 });
 
+const LOGIN_EMAIL_COOLDOWN_SECONDS = 60;
+
 const getReadableAuthError = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error || "");
+  const authError = error as { code?: string; error_code?: string; status?: number } | null;
+  const details = [message, authError?.code, authError?.error_code, authError?.status]
+    .filter(Boolean)
+    .join(" ");
+  if (/rate|429|over_email_send_rate_limit/i.test(details)) {
+    return "登录邮件发送太频繁了，请稍等 1 分钟后再试。";
+  }
   if (/sending confirmation email/i.test(message)) {
     return "邮件服务发送失败：请检查 Supabase Auth 的 SMTP/Resend 配置。";
   }
@@ -305,6 +314,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
@@ -317,9 +327,21 @@ const LoginPage = () => {
     }
   }, [authProfile, logout, navigate]);
 
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = window.setInterval(() => {
+      setResendCooldown((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendCooldown]);
+
   const requestLoginEmail = async () => {
     if (!supabaseConfigured) {
       setStatus("云端登录尚未配置。");
+      return;
+    }
+    if (resendCooldown > 0) {
+      setStatus(`登录邮件刚刚发出，请 ${resendCooldown} 秒后再重新发送。`);
       return;
     }
     const normalizedEmail = email.trim().toLowerCase();
@@ -332,6 +354,7 @@ const LoginPage = () => {
       await sendLoginEmail(normalizedEmail);
       setEmail(normalizedEmail);
       setEmailSent(true);
+      setResendCooldown(LOGIN_EMAIL_COOLDOWN_SECONDS);
       setStatus("登录邮件已发送。请打开邮箱，点击邮件里的确认链接完成登录。");
     } catch (error) {
       console.error("Supabase email login failed", error);
@@ -373,8 +396,14 @@ const LoginPage = () => {
               </p>
             )}
 
-            <button className="login-submit" type="submit" disabled={submitting}>
-              {submitting ? "请稍候..." : emailSent ? "重新发送登录邮件" : "获取登录邮件"}
+            <button className="login-submit" type="submit" disabled={submitting || resendCooldown > 0}>
+              {submitting
+                ? "请稍候..."
+                : resendCooldown > 0
+                  ? `${resendCooldown} 秒后可重发`
+                  : emailSent
+                    ? "重新发送登录邮件"
+                    : "获取登录邮件"}
             </button>
           </form>
 

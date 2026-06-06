@@ -400,6 +400,11 @@ svg {
   background: #232717;
 }
 
+.login-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
 .login-resend {
   background: rgba(255, 253, 248, 0.86);
   color: var(--home-ink);

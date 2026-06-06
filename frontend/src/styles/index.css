@@ -2269,15 +2269,15 @@ svg {
   display: grid;
   place-items: center;
   border-radius: 8px;
-  background: #dedbd1;
+  background: #dfe4cc;
 }
 
 .restored-connection-male {
-  background: #dedbd1;
+  background: #dfe4cc;
 }
 
 .restored-connection-female {
-  background: #ebe3dd;
+  background: #eadfda;
 }
 
 .restored-connection-panel {
@@ -2453,10 +2453,16 @@ svg {
 
 .voice-card-linyu {
   grid-template-columns: 1.15fr 0.85fr;
+  --voice-chip-bg: rgba(223, 228, 204, 0.72);
+  --voice-chip-border: rgba(89, 97, 63, 0.16);
+  --voice-chip-text: #59613f;
 }
 
 .voice-card-awan {
   grid-template-columns: 0.85fr 1.15fr;
+  --voice-chip-bg: rgba(234, 223, 218, 0.76);
+  --voice-chip-border: rgba(126, 94, 86, 0.16);
+  --voice-chip-text: #7a6259;
 }
 
 .voice-card-content {
@@ -2527,11 +2533,11 @@ svg {
 
 .voice-card-tag {
   font-size: 12px;
-  color: #6d745c;
-  background: #f8f7f5;
+  color: var(--voice-chip-text, #6d745c);
+  background: var(--voice-chip-bg, #f8f7f5);
   padding: 6px 14px;
   border-radius: 99px;
-  border: 1px solid rgba(109, 116, 92, 0.12);
+  border: 1px solid var(--voice-chip-border, rgba(109, 116, 92, 0.12));
   font-weight: 500;
 }
 

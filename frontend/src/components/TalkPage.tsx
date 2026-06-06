@@ -147,7 +147,6 @@ const TalkPage = () => {
           {accountMenuOpen && (
             <div className="account-popover restored-account-popover">
               <div className="account-popover-identity">
-                <span className="account-popover-avatar">{accountInitial}</span>
                 <div>
                   <strong>{authProfile?.name ?? "访客"}</strong>
                   <span>{authProfile?.email ?? "访客模式"}</span>

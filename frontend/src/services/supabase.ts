@@ -23,7 +23,7 @@ export const profileFromSession = (session: Session): AuthProfile => ({
   accessToken: session.access_token
 });
 
-export const sendEmailCode = async (email: string): Promise<void> => {
+export const sendLoginEmail = async (email: string): Promise<void> => {
   if (!supabase) throw new Error("Supabase 尚未配置");
   const emailRedirectTo =
     typeof window === "undefined" ? undefined : `${window.location.origin}/setup`;
@@ -32,15 +32,4 @@ export const sendEmailCode = async (email: string): Promise<void> => {
     options: { shouldCreateUser: true, emailRedirectTo }
   });
   if (error) throw error;
-};
-
-export const verifyEmailCode = async (email: string, token: string): Promise<Session> => {
-  if (!supabase) throw new Error("Supabase 尚未配置");
-  const signupResult = await supabase.auth.verifyOtp({ email, token, type: "signup" });
-  if (signupResult.data.session) return signupResult.data.session;
-
-  const emailResult = await supabase.auth.verifyOtp({ email, token, type: "email" });
-  if (emailResult.error) throw emailResult.error;
-  if (!emailResult.data.session) throw signupResult.error ?? new Error("登录成功但未创建会话");
-  return emailResult.data.session;
 };

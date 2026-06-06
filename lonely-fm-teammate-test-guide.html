@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lonely FM 队友测试指南</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f2e8;
+        --paper: #fffaf0;
+        --ink: #2f3921;
+        --muted: #7c806e;
+        --line: #ded8c8;
+        --accent: #ec6676;
+        --deep: #2f3921;
+        --soft: #efe7d7;
+        --code: #202719;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 15% 0%, rgba(236, 102, 118, 0.13), transparent 30%),
+          linear-gradient(180deg, #fbf6ed 0%, var(--bg) 100%);
+        color: var(--ink);
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          "SF Pro Display",
+          "PingFang SC",
+          "Hiragino Sans GB",
+          "Microsoft YaHei",
+          sans-serif;
+        line-height: 1.75;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        width: min(1040px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 42px 0 72px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 36px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .mark {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        color: var(--deep);
+      }
+
+      .mark::before {
+        content: "";
+        position: absolute;
+        inset: 3px 8px 3px 2px;
+        border-radius: 999px 0 0 999px;
+        background: currentColor;
+      }
+
+      .mark::after {
+        content: "))";
+        position: absolute;
+        right: 0;
+        top: 1px;
+        color: var(--accent);
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -2px;
+        transform: scaleX(0.72);
+      }
+
+      .badge {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 14px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 40px;
+        align-items: end;
+        padding: 70px 0 58px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 760px;
+        font-size: clamp(54px, 8vw, 106px);
+        line-height: 0.98;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+
+      .hero p:last-child {
+        margin: 0;
+        color: #646858;
+        font-size: 20px;
+      }
+
+      .quick-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 250, 240, 0.74);
+        padding: 24px;
+        box-shadow: 0 28px 70px rgba(47, 57, 33, 0.08);
+      }
+
+      .quick-card h2 {
+        margin: 0 0 12px;
+        font-size: 22px;
+      }
+
+      .quick-card p {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .primary-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border-radius: 999px;
+        padding: 0 18px;
+        background: var(--deep);
+        color: #fffaf0;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .section {
+        padding: 52px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: 0.72fr 1.28fr;
+        gap: 34px;
+        margin-bottom: 24px;
+      }
+
+      .section h2 {
+        margin: 0;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 1.08;
+        font-weight: 500;
+      }
+
+      .section-heading p {
+        margin: 8px 0 0;
+        color: #626654;
+        font-size: 18px;
+      }
+
+      .steps {
+        display: grid;
+        gap: 14px;
+        counter-reset: step;
+      }
+
+      .step {
+        position: relative;
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        gap: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 250, 240, 0.72);
+        padding: 22px;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        background: rgba(236, 102, 118, 0.13);
+        color: var(--accent);
+        font-weight: 900;
+      }
+
+      .step h3 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      .step p {
+        margin: 0 0 12px;
+        color: #626654;
+      }
+
+      .step p:last-child {
+        margin-bottom: 0;
+      }
+
+      code,
+      pre {
+        font-family:
+          "SFMono-Regular",
+          Consolas,
+          "Liberation Mono",
+          monospace;
+      }
+
+      pre {
+        margin: 12px 0;
+        overflow-x: auto;
+        border-radius: 8px;
+        background: var(--code);
+        color: #f9f4ea;
+        padding: 16px;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+
+      .note {
+        margin-top: 18px;
+        border-left: 3px solid var(--accent);
+        background: rgba(236, 102, 118, 0.08);
+        padding: 14px 16px;
+        color: #5c604f;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: rgba(255, 250, 240, 0.6);
+      }
+
+      .check {
+        min-height: 190px;
+        padding: 28px;
+        border-right: 1px solid var(--line);
+      }
+
+      .check:last-child {
+        border-right: 0;
+      }
+
+      .check svg {
+        color: var(--accent);
+        margin-bottom: 22px;
+      }
+
+      .check h3 {
+        margin: 0 0 10px;
+        font-size: 26px;
+        line-height: 1.25;
+      }
+
+      .check p {
+        margin: 0;
+        color: #626654;
+      }
+
+      .dark-band {
+        margin-top: 56px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #1d2517, #2d3625);
+        color: #fffaf0;
+        padding: clamp(30px, 5vw, 58px);
+      }
+
+      .dark-band h2 {
+        margin: 0 0 12px;
+        font-size: clamp(38px, 5vw, 70px);
+        line-height: 1.05;
+        font-weight: 500;
+      }
+
+      .dark-band p {
+        margin: 0;
+        color: rgba(255, 250, 240, 0.72);
+        font-size: 18px;
+      }
+
+      ul {
+        margin: 12px 0 0;
+        padding-left: 1.2em;
+        color: #626654;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .footer {
+        padding-top: 34px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 840px) {
+        .page {
+          width: min(100% - 24px, 680px);
+          padding-top: 24px;
+        }
+
+        .topbar {
+          padding-bottom: 22px;
+        }
+
+        .hero,
+        .section-heading {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          padding: 44px 0;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .check {
+          min-height: auto;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .check:last-child {
+          border-bottom: 0;
+        }
+
+        .step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar" aria-label="页面标题栏">
+        <div class="brand">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Lonely FM</span>
+        </div>
+        <span class="badge">队友测试版 · Vercel + 本地 Gemma 4</span>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <p class="eyebrow">Teammate test guide</p>
+            <h1>打开频道，连接自己的 Gemma 4。</h1>
+          </div>
+          <div class="quick-card">
+            <h2>测试入口</h2>
+            <p>先从线上前端进入。登录后页面会检测你电脑上的本地后端和 Ollama / Gemma 4。</p>
+            <a class="primary-link" href="https://lonely-fm.vercel.app/" target="_blank" rel="noreferrer">
+              打开 Lonely FM
+            </a>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <h2>测试前准备</h2>
+            <p>这次不是单纯打开网页就结束。Vercel 只负责前端页面，Gemma 4 需要用你自己电脑上的 Ollama 和本地后端来跑。</p>
+          </div>
+
+          <div class="steps">
+            <article class="step">
+              <div></div>
+              <div>
+                <h3>安装并启动 Ollama</h3>
+                <p>如果还没有 Ollama，先安装：<a href="https://ollama.com/download" target="_blank" rel="noreferrer">https://ollama.com/download</a></p>
+                <pre><code>ollama serve</code></pre>
+              </div>
+            </article>
+
+            <article class="step">
+              <div></div>
+              <div>
+                <h3>确认本地有 Gemma 4</h3>
+                <p>Lonely FM 兼容模型名以 <code>gemma4</code> 开头的版本，例如 <code>gemma4:12b-mlx</code>、<code>gemma4:e4b</code>、<code>gemma4:21b</code>。</p>
+                <pre><code>ollama list</code></pre>
+                <p>如果还没有 Gemma 4，可以先拉一个版本：</p>
+                <pre><code>ollama pull gemma4:12b-mlx</code></pre>
+              </div>
+            </article>
+
+            <article class="step">
+              <div></div>
+              <div>
+                <h3>允许 Vercel 页面访问本地 Ollama</h3>
+                <p>如果你在 Mac 上测试，先执行下面这句，然后退出并重新打开 Ollama。</p>
+                <pre><code>launchctl setenv OLLAMA_ORIGINS "https://lonely-fm.vercel.app,http://localhost:5173,http://127.0.0.1:5173"</code></pre>
+              </div>
+            </article>
+
+            <article class="step">
+              <div></div>
+              <div>
+                <h3>启动 Lonely FM 本地后端</h3>
+                <p>如果已经有项目代码，进入项目目录后执行：</p>
+                <pre><code>cd backend
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8001</code></pre>
+                <p>后端启动后，打开这个地址确认是否有响应：</p>
+                <pre><code>http://127.0.0.1:8001/health</code></pre>
+                <div class="note">如果没有项目代码，先从 GitHub 拉取 Lonely FM 仓库，或让 Johnny 把后端代码发给你。</div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <h2>登录和进入频道</h2>
+            <p>登录用于云端保存你愿意留下的记忆。访客模式可以临时体验，但离开后不会保存本轮记忆。</p>
+          </div>
+
+          <div class="steps">
+            <article class="step">
+              <div></div>
+              <div>
+                <h3>打开线上页面</h3>
+                <pre><code>https://lonely-fm.vercel.app/</code></pre>
+                <p>点击“进入频道”，输入邮箱，然后点击“获取登录邮件”。</p>
+              </div>
+            </article>
+
+            <article class="step">
+              <div></div>
+              <div>
+                <h3>完成邮箱登录</h3>
+                <p>打开收到的登录邮件，直接点击邮件里的确认链接完成登录。</p>
+                <div class="note">如果 1-2 分钟没收到，检查垃圾邮件。当前临时使用 Supabase 内置邮件服务，免费额度很低，短时间多次测试可能需要等一会儿。</div>
+              </div>
+            </article>
+
+            <article class="step">
+              <div></div>
+              <div>
+                <h3>检测 Gemma 4 并选择声音</h3>
+                <p>登录后会进入 Gemma 连接页。检测通过后选择林屿或阿婉，进入连接中页面。接通后，角色会先主动打招呼。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <h2>重点测什么</h2>
+            <p>这次测试重点不是看页面是否能打开，而是看“语音陪伴”是否真的自然、稳定、能接住用户的话。</p>
+          </div>
+
+          <div class="grid">
+            <article class="check">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3v18M7 8v8M17 8v8M3 11v2M21 11v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+              <h3>语音链路</h3>
+              <p>能不能听到回复，回复前有没有很长空白，声音是否卡顿、重叠或中断。</p>
+            </article>
+            <article class="check">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 5h16v11H8l-4 4V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              </svg>
+              <h3>理解质量</h3>
+              <p>林屿/阿婉是否真的针对你刚说的话回应，而不是说套路话、答非所问。</p>
+            </article>
+            <article class="check">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 21s8-4.5 8-11V5l-8-3-8 3v5c0 6.5 8 11 8 11Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              </svg>
+              <h3>记忆体验</h3>
+              <p>登录后多轮对话，是否能保留和使用用户愿意留下的信息。</p>
+            </article>
+          </div>
+
+          <div class="dark-band">
+            <h2>出现问题时，请记录下来。</h2>
+            <p>请发回：系统版本、浏览器、Gemma 4 版本、问题发生步骤、截图或录屏、浏览器控制台报错。如果是语音延迟或答非所问，最好附一段 30 秒以内的录屏。</p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        Lonely FM 测试指南。当前线上入口：<a href="https://lonely-fm.vercel.app/" target="_blank" rel="noreferrer">https://lonely-fm.vercel.app/</a>
+      </footer>
+    </div>
+  </body>
+</html>

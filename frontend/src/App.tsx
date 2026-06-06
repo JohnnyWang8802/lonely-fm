@@ -21,7 +21,7 @@ import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import TalkPage from "./components/TalkPage";
 import { useTypewriter } from "./hooks/useTypewriter";
 import { useSessionStore } from "./store/sessionStore";
-import { profileFromSession, sendEmailCode, supabase, supabaseConfigured, verifyEmailCode } from "./services/supabase";
+import { profileFromSession, sendLoginEmail, supabase, supabaseConfigured } from "./services/supabase";
 import {
   checkLocalGemma,
   createCloudGemmaConnection,
@@ -303,8 +303,7 @@ const LoginPage = () => {
   const authProfile = useSessionStore((state) => state.authProfile);
   const guestTrialStartingRef = useRef(false);
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [codeSent, setCodeSent] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState("");
 
@@ -318,7 +317,7 @@ const LoginPage = () => {
     }
   }, [authProfile, logout, navigate]);
 
-  const requestCode = async () => {
+  const requestLoginEmail = async () => {
     if (!supabaseConfigured) {
       setStatus("云端登录尚未配置。");
       return;
@@ -330,30 +329,13 @@ const LoginPage = () => {
     }
     setSubmitting(true);
     try {
-      await sendEmailCode(normalizedEmail);
+      await sendLoginEmail(normalizedEmail);
       setEmail(normalizedEmail);
-      setCodeSent(true);
-      setStatus("登录邮件已发送。收到 6 位验证码就输入；如果邮件里是登录链接，直接点开完成登录。");
+      setEmailSent(true);
+      setStatus("登录邮件已发送。请打开邮箱，点击邮件里的确认链接完成登录。");
     } catch (error) {
       console.error("Supabase email login failed", error);
       setStatus(getReadableAuthError(error));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const verifyCode = async () => {
-    if (!/^\d{6}$/.test(code)) {
-      setStatus("如果邮件里有 6 位验证码，请输入验证码；如果邮件里是登录链接，直接点开完成登录。");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const session = await verifyEmailCode(email, code);
-      login(profileFromSession(session));
-      setStatus("登录成功，正在进入频道。");
-    } catch {
-      setStatus("验证码无效或已过期，请重新发送。");
     } finally {
       setSubmitting(false);
     }
@@ -372,7 +354,7 @@ const LoginPage = () => {
           </div>
           <form className="login-actions" aria-label="邮箱登录" onSubmit={(event) => {
             event.preventDefault();
-            void (codeSent ? verifyCode() : requestCode());
+            void requestLoginEmail();
           }}>
             <label className="login-field" aria-label="邮箱">
               <Mail size={17} aria-hidden="true" />
@@ -382,24 +364,8 @@ const LoginPage = () => {
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="输入邮箱"
                 autoComplete="email"
-                disabled={codeSent}
               />
             </label>
-
-            {codeSent && (
-              <label className="login-field login-field-code" aria-label="验证码">
-                <span aria-hidden="true">#</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="输入 6 位验证码"
-                  maxLength={6}
-                  autoComplete="one-time-code"
-                />
-              </label>
-            )}
 
             {status && (
               <p className="login-status" role="status" aria-live="polite">
@@ -408,7 +374,7 @@ const LoginPage = () => {
             )}
 
             <button className="login-submit" type="submit" disabled={submitting}>
-              {submitting ? "请稍候..." : codeSent ? "验证 6 位码" : "获取登录邮件"}
+              {submitting ? "请稍候..." : emailSent ? "重新发送登录邮件" : "获取登录邮件"}
             </button>
           </form>
 

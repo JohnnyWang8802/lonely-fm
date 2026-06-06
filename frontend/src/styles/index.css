@@ -2459,18 +2459,22 @@ svg {
   grid-template-columns: 0.85fr 1.15fr;
 }
 
-.voice-card-awan .voice-card-content {
-  padding-left: 128px;
-  padding-right: 40px;
-}
-
 .voice-card-content {
   padding: 44px 48px;
+  width: min(100%, 430px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   z-index: 3;
+}
+
+.voice-card-linyu .voice-card-content {
+  justify-self: start;
+}
+
+.voice-card-awan .voice-card-content {
+  justify-self: end;
 }
 
 .voice-card-name-row {
@@ -2643,6 +2647,7 @@ svg {
   .voice-card-content {
     order: 2;
     padding: 24px;
+    width: 100%;
   }
   .voice-card-awan .voice-card-content {
     padding: 24px;

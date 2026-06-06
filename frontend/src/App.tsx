@@ -56,9 +56,6 @@ const HomePage = () => {
   const authProfile = useSessionStore((state) => state.authProfile);
   const logout = useSessionStore((state) => state.logout);
 
-  // Dynamic background color matching video edges
-  const [videoBgColor, setVideoBgColor] = useState<string>("#f1e1d4");
-
   // Video references and states for scrubbing
   const videoRef = useRef<HTMLVideoElement>(null);
   const targetTimeRef = useRef<number>(0);
@@ -137,39 +134,14 @@ const HomePage = () => {
     }
   };
 
-  const extractColor = (video: HTMLVideoElement) => {
-    try {
-      const canvas = document.createElement("canvas");
-      canvas.width = 10;
-      canvas.height = 10;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, 10, 10);
-        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-        if (r > 0 || g > 0 || b > 0) {
-          const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-          setVideoBgColor(hex);
-          console.log("Extracted home hero video edge color:", hex);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to extract color from video:", err);
-    }
-  };
-
   const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
     targetTimeRef.current = video.currentTime;
-    extractColor(video);
-  };
-
-  const handleCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    extractColor(e.currentTarget);
   };
 
   return (
-    <div className="home-shell" style={{ backgroundColor: videoBgColor }}>
-      <header className="home-nav" style={{ backgroundColor: "transparent" }}>
+    <div className="home-shell">
+      <header className="home-nav">
         <div className="home-logo-link" aria-label="Lonely FM 首页">
           <Logo />
         </div>
@@ -185,7 +157,7 @@ const HomePage = () => {
       <main>
         <section className="home-hero" aria-labelledby="home-title" ref={heroRef}>
           <div className="hero-bg" aria-hidden="true">
-            <div className="hero-bg-art" style={{ backgroundColor: videoBgColor }} />
+            <div className="hero-bg-art" />
             <video
               ref={videoRef}
               src="/companion.mp4"
@@ -193,7 +165,6 @@ const HomePage = () => {
               playsInline
               preload="auto"
               onLoadedMetadata={handleLoadedMetadata}
-              onCanPlay={handleCanPlay}
               onSeeked={handleSeeked}
               className="hero-img"
             />

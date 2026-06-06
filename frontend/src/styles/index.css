@@ -24,6 +24,7 @@
   --home-muted: rgba(52, 57, 35, 0.58);
   --home-line: rgba(52, 57, 35, 0.11);
   --home-accent: #ef6072;
+  --home-page-bg: #f1e1d4;
   --app-header-height: 72px;
 }
 
@@ -75,7 +76,7 @@ svg {
 
 .home-shell {
   min-height: 100vh;
-  background: #f8f4ea;
+  background: var(--home-page-bg);
   color: #202319;
 }
 
@@ -89,7 +90,7 @@ svg {
   align-items: center;
   gap: 24px;
   padding: 14px clamp(18px, 4vw, 56px);
-  background: rgba(248, 244, 234, 0.74);
+  background: rgba(241, 225, 212, 0.82);
   backdrop-filter: blur(22px);
   border-bottom: 1px solid rgba(52, 57, 35, 0.055);
 }
@@ -1711,6 +1712,7 @@ svg {
   padding: clamp(40px, 6vh, 96px) clamp(20px, 5vw, 72px);
   overflow: hidden;
   isolation: isolate;
+  background: var(--home-page-bg);
 }
 
 .hero-bg {
@@ -1751,11 +1753,17 @@ svg {
 }
 
 .hero-bg-art {
-  background: #f1e1d4;
+  background: var(--home-page-bg);
 }
 
 .hero-scrim {
-  display: none;
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--home-page-bg) 0%, rgba(241, 225, 212, 0.96) 38%, rgba(241, 225, 212, 0.54) 55%, rgba(241, 225, 212, 0.06) 74%, rgba(241, 225, 212, 0.1) 100%),
+    linear-gradient(180deg, var(--home-page-bg) 0%, rgba(241, 225, 212, 0) 16%, rgba(241, 225, 212, 0) 82%, var(--home-page-bg) 100%);
 }
 
 .hero-stage {
@@ -2035,7 +2043,7 @@ svg {
   }
 
   .hero-scrim {
-    background: linear-gradient(0deg, rgba(247, 243, 234, 0.96) 4%, rgba(247, 243, 234, 0.72) 30%, rgba(247, 243, 234, 0) 70%);
+    background: linear-gradient(0deg, rgba(241, 225, 212, 0.96) 4%, rgba(241, 225, 212, 0.72) 30%, rgba(241, 225, 212, 0) 70%);
   }
 
   .home-hero .hero-line {

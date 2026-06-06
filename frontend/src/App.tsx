@@ -14,9 +14,10 @@ import {
   Radio,
   RefreshCw,
   ShieldCheck,
-  Terminal
+  Terminal,
+  Users
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import TalkPage from "./components/TalkPage";
 import { useTypewriter } from "./hooks/useTypewriter";
@@ -45,6 +46,128 @@ const Logo = () => (
     <LogoMark />
     <span>Lonely FM</span>
   </div>
+);
+
+const MarketingNav = () => (
+  <header className="home-nav">
+    <div className="home-logo-link" aria-label="Lonely FM 首页">
+      <Logo />
+    </div>
+    <nav className="home-nav-links" aria-label="主页导航">
+      <Link className="home-nav-text-link" to="/background">背景</Link>
+      <Link className="home-nav-text-link" to="/technology">技术</Link>
+      <Link className="home-nav-text-link" to="/team">团队</Link>
+      <Link className="home-nav-action" to="/login">
+        进入频道
+      </Link>
+    </nav>
+  </header>
+);
+
+const InfoPage = ({
+  kicker,
+  title,
+  lead,
+  cards,
+  children
+}: {
+  kicker: string;
+  title: string;
+  lead: string;
+  cards: Array<{ title: string; body: string }>;
+  children?: ReactNode;
+}) => (
+  <div className="info-shell">
+    <MarketingNav />
+    <main className="info-main">
+      <section className="info-hero">
+        <p className="section-eyebrow">{kicker}</p>
+        <h1>{title}</h1>
+        <p>{lead}</p>
+      </section>
+      <section className="info-card-grid" aria-label={kicker}>
+        {cards.map((card) => (
+          <article className="info-card" key={card.title}>
+            <h2>{card.title}</h2>
+            <p>{card.body}</p>
+          </article>
+        ))}
+      </section>
+      {children}
+    </main>
+  </div>
+);
+
+const BackgroundPage = () => (
+  <InfoPage
+    kicker="Background"
+    title="Lonely FM 想解决的，不是无聊，是无人可说。"
+    lead="很多人的低落时刻不是发生在医院或咨询室，而是在深夜、独居、疲惫、下班后的房间里。那一刻，人需要的不是复杂功能，而是一个愿意先听完、能接住情绪的声音。"
+    cards={[
+      {
+        title: "痛点一：没人能马上听",
+        body: "孤独和低落往往来得突然，但现实中的朋友、家人和专业支持不一定刚好在线。用户需要一个低门槛、随时能开始的陪伴入口。"
+      },
+      {
+        title: "痛点二：聊天框太冷",
+        body: "文字对话容易变成问答和客服感。Lonely FM 用语音、停顿和节奏，让陪伴更接近一次真实通话，而不是再多一个消息窗口。"
+      },
+      {
+        title: "痛点三：长期关系会断",
+        body: "每次重新介绍自己会消耗信任。登录后，用户愿意留下的记忆会被保存，林屿和阿婉能在下一次继续理解这个人。"
+      }
+    ]}
+  />
+);
+
+const TechnologyPage = () => (
+  <InfoPage
+    kicker="Technology"
+    title="本地 Gemma 4 优先，云端能力可选。"
+    lead="技术路线以 AI for Good 的可获得性和隐私为核心：能在用户自己的电脑上运行，就优先使用本地 Gemma 4；需要移动设备或更方便测试时，再提供云端 API 选项。"
+    cards={[
+      {
+        title: "1. 大模型",
+        body: "优先检测用户本地 Ollama 中的 Gemma 4，并兼容不同参数版本；没有本地模型时，用户可以选择使用自己的 Gemma 4 云端 API key。"
+      },
+      {
+        title: "2. 实时语音",
+        body: "前端负责麦克风、VAD 轮流说话判断和连接状态；后端把识别文本交给 Gemma 4，再用情绪化 TTS 合成更自然的回应。"
+      },
+      {
+        title: "3. 记忆与边界",
+        body: "Supabase 负责登录和可删除记忆。访客不会保存长期记忆，登录用户的记忆按账号隔离，用来支持连续陪伴。"
+      }
+    ]}
+  />
+);
+
+const TeamPage = () => (
+  <InfoPage
+    kicker="Team"
+    title="一个小团队，做一个能被认真使用的声音。"
+    lead="Lonely FM 由 Johnny Wang 和 Tim Tsui 共同完成。我们的目标不是做一个炫技 Demo，而是把语音陪伴、记忆和本地 Gemma 4 组合成评委和真实用户都能试用的产品。"
+    cards={[
+      {
+        title: "Johnny Wang",
+        body: "负责产品方向、体验设计、前端界面和演示叙事，把 Lonely FM 做成一个极简但有温度的语音陪伴产品。"
+      },
+      {
+        title: "Tim Tsui",
+        body: "负责技术协作、模型测试和本地部署验证，确保队友、评委和不同设备上的测试流程尽可能稳定。"
+      },
+      {
+        title: "共同目标",
+        body: "用 Gemma 4 做一个真正面向孤独人群的 AI for Good 项目：可访问、可持续、尊重隐私，也尊重人的情绪。"
+      }
+    ]}
+  >
+    <section className="info-team-strip" aria-label="团队成员">
+      <Users size={22} />
+      <span>Johnny Wang</span>
+      <span>Tim Tsui</span>
+    </section>
+  </InfoPage>
 );
 
 const HERO_LINE = "你好。先别急着说得完整 —— 挑最想说的那一句就好。今晚，想从哪里开始？";
@@ -141,19 +264,7 @@ const HomePage = () => {
 
   return (
     <div className="home-shell">
-      <header className="home-nav">
-        <div className="home-logo-link" aria-label="Lonely FM 首页">
-          <Logo />
-        </div>
-        <nav className="home-nav-links" aria-label="主页导航">
-          <a className="home-nav-text-link" href="#voice">背景</a>
-          <a className="home-nav-text-link" href="#good">技术</a>
-          <a className="home-nav-text-link" href="#good">团队</a>
-          <Link className="home-nav-action" to="/login">
-            进入频道
-          </Link>
-        </nav>
-      </header>
+      <MarketingNav />
 
       <main>
         <section className="home-hero" aria-labelledby="home-title" ref={heroRef}>
@@ -803,6 +914,9 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/background" element={<BackgroundPage />} />
+      <Route path="/technology" element={<TechnologyPage />} />
+      <Route path="/team" element={<TeamPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/setup" element={<GemmaSetupPage />} />
       <Route path="/voice-select" element={<VoiceSelectPage />} />

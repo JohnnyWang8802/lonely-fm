@@ -333,7 +333,7 @@ const LoginPage = () => {
       await sendEmailCode(normalizedEmail);
       setEmail(normalizedEmail);
       setCodeSent(true);
-      setStatus("登录邮件已发送。收到 6 位验证码就输入；如果是登录链接，直接点开。");
+      setStatus("登录邮件已发送。收到 6 位验证码就输入；如果邮件里是登录链接，直接点开完成登录。");
     } catch (error) {
       console.error("Supabase email login failed", error);
       setStatus(getReadableAuthError(error));
@@ -344,7 +344,7 @@ const LoginPage = () => {
 
   const verifyCode = async () => {
     if (!/^\d{6}$/.test(code)) {
-      setStatus("如果邮件里有 6 位验证码，请输入验证码；如果是登录链接，直接点开即可。");
+      setStatus("如果邮件里有 6 位验证码，请输入验证码；如果邮件里是登录链接，直接点开完成登录。");
       return;
     }
     setSubmitting(true);
@@ -370,7 +370,7 @@ const LoginPage = () => {
             <h1 id="login-title">登录，让频道记得你</h1>
             <p>同步你愿意留下的记忆，在不同设备上继续熟悉的对话。</p>
           </div>
-          <form className="login-actions" aria-label="邮箱验证码登录" onSubmit={(event) => {
+          <form className="login-actions" aria-label="邮箱登录" onSubmit={(event) => {
             event.preventDefault();
             void (codeSent ? verifyCode() : requestCode());
           }}>
@@ -408,7 +408,7 @@ const LoginPage = () => {
             )}
 
             <button className="login-submit" type="submit" disabled={submitting}>
-              {submitting ? "请稍候..." : codeSent ? "验证并登录" : "获取邮箱验证码"}
+              {submitting ? "请稍候..." : codeSent ? "验证 6 位码" : "获取登录邮件"}
             </button>
           </form>
 

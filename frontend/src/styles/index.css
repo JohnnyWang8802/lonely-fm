@@ -2471,6 +2471,7 @@ svg {
 
 .voice-card-linyu .voice-card-content {
   justify-self: start;
+  transform: translateX(84px);
 }
 
 .voice-card-awan .voice-card-content {
@@ -2655,6 +2656,7 @@ svg {
     order: 2;
     padding: 24px;
     width: 100%;
+    transform: none;
   }
   .voice-card-awan .voice-card-content {
     padding: 24px;

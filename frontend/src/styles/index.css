@@ -2474,7 +2474,14 @@ svg {
 }
 
 .voice-card-awan .voice-card-content {
+  align-items: flex-end;
   justify-self: end;
+  text-align: right;
+}
+
+.voice-card-awan .voice-card-name-row,
+.voice-card-awan .voice-card-tags {
+  justify-content: flex-end;
 }
 
 .voice-card-name-row {

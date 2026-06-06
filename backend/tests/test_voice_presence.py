@@ -16,7 +16,7 @@ class VoicePresenceTests(unittest.TestCase):
             "老板今天一直否定我，我真的很累": "老板那块最耗你，",
             "为什么语音回复还是这么慢": "你问的是延迟，",
             "我最近一个人住，晚上特别孤独": "那个孤独感，",
-            "林宇你还记得我是谁吗": "你问的是记忆，",
+            "林屿你还记得我是谁吗": "你问的是记忆，",
         }
         for text, expected in cases.items():
             with self.subTest(text=text):
@@ -30,7 +30,7 @@ class VoicePresenceTests(unittest.TestCase):
                 {"role": "assistant", "content": "慢主要卡在 Gemma 和 TTS 两段。"},
             ],
             "那现在为什么还是不行",
-            companion_name="林宇",
+            companion_name="林屿",
         )
         system = str(prompt["system"])
         self.assertIn("最近对话重点", system)

@@ -63,11 +63,11 @@ ALLOWED_VOICE_IDS = frozenset(
     }
 )
 VOICE_PROFILE_NAMES = {
-    "linyu": "林宇",
+    "linyu": "林屿",
     "awan": "阿婉",
 }
 COMPANION_NAME_ALIASES = {
-    "林宇": ("林宇", "林屿", "林雨", "淋雨", "林语", "林玉"),
+    "林屿": ("林屿", "林雨", "淋雨", "林语", "林玉"),
     "阿婉": ("阿婉", "阿晚", "阿宛", "啊晚"),
 }
 DIRECT_ADDRESS_PREFIXES = (
@@ -130,7 +130,7 @@ def answer_product_fact(text: str) -> str | None:
     if mentions_gemma and asks_status:
         return "已经接入本地 Gemma 4，通过 Ollama 在这台电脑上运行。"
     mentions_latency = any(keyword in normalized for keyword in ("延迟", "慢", "卡", "空白", "没声音", "反应"))
-    mentions_voice = any(keyword in normalized for keyword in ("语音", "声音", "回复", "回答", "林宇", "阿婉", "林屿"))
+    mentions_voice = any(keyword in normalized for keyword in ("语音", "声音", "回复", "回答", "林屿", "阿婉"))
     if mentions_latency and mentions_voice:
         return "慢主要卡在两段：本地 Gemma 先想第一句，MiniMax 再合成声音。我们现在用更短的首句和预热连接，把第一声尽量提前。"
     return None
@@ -190,14 +190,13 @@ def answer_companion_intent(text: str, history: list[dict[str, str]], companion_
         "你叫什么名字",
         "你是阿婉吗",
         "你是阿晚吗",
-        "你是林宇吗",
         "你是林屿吗",
         "你是淋雨吗",
         "你是林雨吗",
     )
     if any(question in normalized for question in identity_questions):
-        if companion_name == "林宇":
-            return "我是林宇，双木林，宇宙的宇。像月光一样陪你把情绪说完。"
+        if companion_name == "林屿":
+            return "我是林屿，双木林，岛屿的屿。像月光一样陪你把情绪说完。"
         return "我是阿婉。你刚才是想确认我是谁，还是觉得这个声音有点不一样？"
 
     # Only keep deterministic social acknowledgements here. Emotional or contextual

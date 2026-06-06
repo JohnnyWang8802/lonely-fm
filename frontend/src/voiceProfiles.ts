@@ -3,7 +3,7 @@ import type { VoiceProfile } from "./types";
 export const VOICE_PROFILES: VoiceProfile[] = [
   {
     id: "linyu",
-    displayName: "林宇",
+    displayName: "林屿",
     romanName: "Linyu",
     gender: "male",
     voiceId: "Chinese (Mandarin)_Radio_Host",

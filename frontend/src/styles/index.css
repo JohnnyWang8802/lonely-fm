@@ -90,9 +90,8 @@ svg {
   align-items: center;
   gap: 24px;
   padding: 14px clamp(18px, 4vw, 56px);
-  background: rgba(241, 225, 212, 0.82);
-  backdrop-filter: blur(22px);
-  border-bottom: 1px solid rgba(52, 57, 35, 0.055);
+  background: var(--home-page-bg);
+  border-bottom: 1px solid rgba(52, 57, 35, 0.045);
 }
 
 .home-logo-link {
@@ -1719,6 +1718,15 @@ svg {
   position: absolute;
   inset: 0;
   z-index: -1;
+}
+
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: clamp(72px, 11vh, 118px);
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(241, 225, 212, 0.88) 0%, rgba(241, 225, 212, 0.44) 56%, rgba(241, 225, 212, 0) 100%);
 }
 
 .hero-bg .hero-img,

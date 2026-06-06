@@ -146,12 +146,13 @@ const HomePage = () => {
           <Logo />
         </div>
         <nav className="home-nav-links" aria-label="主页导航">
-          <a href="#voice">声音</a>
-          <a href="#good">陪伴</a>
+          <a className="home-nav-text-link" href="#voice">背景</a>
+          <a className="home-nav-text-link" href="#good">技术</a>
+          <a className="home-nav-text-link" href="#good">团队</a>
+          <Link className="home-nav-action" to="/login">
+            进入频道
+          </Link>
         </nav>
-        <Link className="home-nav-action" to="/login">
-          进入频道
-        </Link>
       </header>
 
       <main>

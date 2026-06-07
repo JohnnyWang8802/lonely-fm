@@ -23,7 +23,7 @@ class Settings:
     local_gemma_api_key: str | None = getenv("LOCAL_GEMMA_API_KEY")
     fish_audio_api_key: str | None = getenv("FISH_AUDIO_API_KEY")
     fish_audio_voice_id: str | None = getenv("FISH_AUDIO_VOICE_ID")
-    tts_provider: str = getenv("TTS_PROVIDER", "google")
+    tts_provider: str = getenv("TTS_PROVIDER", "minimax")
     minimax_api_key: str | None = getenv("MINIMAX_API_KEY")
     minimax_tts_endpoint: str = getenv("MINIMAX_TTS_ENDPOINT", "https://api-uw.minimax.io/v1/t2a_v2")
     minimax_tts_ws_endpoint: str = getenv("MINIMAX_TTS_WS_ENDPOINT", "wss://api.minimax.io/ws/v1/t2a_v2")

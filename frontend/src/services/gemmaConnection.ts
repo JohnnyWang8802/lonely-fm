@@ -81,7 +81,7 @@ export const checkLocalGemma = async (): Promise<LocalGemmaCheck> => {
       models: [],
       error: isSecurePage ? "由于浏览器安全限制，无法连接本地后端" : "没有连接到 Lonely FM 本地后端",
       setupHint: isSecurePage
-        ? "这是因为线上加密页面（HTTPS）访问本地服务（HTTP）会被浏览器安全策略拦截。请先在电脑上启动本地后端和 Ollama，如果仍无法连接，可在 Chrome 地址栏输入 chrome://flags/#local-network-access-check 并设置为 Disabled，重启浏览器以解除限制；或直接在本地运行前端获得最佳体验。"
+        ? "这是因为线上加密页面（HTTPS）无法直接请求本地服务（HTTP）。请确认本地后端（8001端口）已启动，并在 Chrome 地址栏左侧点击“控制/锁头”图标 -> 进入“网站设置 (Site settings)” -> 找到“不安全内容 (Insecure content)”并选择“允许 (Allow)”，刷新页面即可成功连接！"
         : "请先在这台电脑上启动 Lonely FM 本地后端；它会负责连接 Ollama / Gemma 4。"
     };
   } catch (error) {
@@ -97,7 +97,7 @@ export const checkLocalGemma = async (): Promise<LocalGemmaCheck> => {
           ? "由于浏览器安全限制，无法连接本地后端"
           : "无法连接 Lonely FM 本地后端",
       setupHint: isSecurePage
-        ? "这是因为线上加密页面（HTTPS）访问本地服务（HTTP）会被浏览器安全策略拦截。请先在电脑上启动本地后端和 Ollama，如果仍无法连接，可在 Chrome 地址栏输入 chrome://flags/#local-network-access-check 并设置为 Disabled，重启浏览器以解除限制；或直接在本地运行前端获得最佳体验。"
+        ? "这是因为线上加密页面（HTTPS）无法直接请求本地服务（HTTP）。请确认本地后端（8001端口）已启动，并在 Chrome 地址栏左侧点击“控制/锁头”图标 -> 进入“网站设置 (Site settings)” -> 找到“不安全内容 (Insecure content)”并选择“允许 (Allow)”，刷新页面即可成功连接！"
         : "请确认 Lonely FM 本地后端已启动，并且 8001 端口可以访问。"
     };
   }
@@ -152,7 +152,7 @@ export const checkLocalOllamaOnly = async (): Promise<LocalGemmaCheck> => {
           ? "由于浏览器安全限制，无法连接本地服务"
           : "无法连接本地后端或 Ollama",
       setupHint: isSecurePage
-        ? "这是因为线上加密页面（HTTPS）访问本地服务（HTTP）会被浏览器安全策略拦截。请先在电脑上启动本地后端和 Ollama，如果仍无法连接，可在 Chrome 地址栏输入 chrome://flags/#local-network-access-check 并设置为 Disabled，重启浏览器以解除限制；或直接在本地运行前端获得最佳体验。"
+        ? "这是因为线上加密页面（HTTPS）无法直接请求本地服务（HTTP/WS）。请确认本地后端（8001端口）已启动，并在 Chrome 地址栏左侧点击“控制/锁头”图标 -> 进入“网站设置 (Site settings)” -> 找到“不安全内容 (Insecure content)”并选择“允许 (Allow)”，刷新页面即可成功连接！"
         : "请确认 Lonely FM 本地后端已启动，并且 Ollama 的 11434 端口可以访问。"
     };
   }

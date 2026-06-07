@@ -89,7 +89,7 @@ svg {
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 24px;
-  padding: 14px clamp(18px, 4vw, 56px);
+  padding: 0 clamp(28px, 4vw, 64px);
   background: var(--home-page-bg);
   border-bottom: 1px solid rgba(52, 57, 35, 0.045);
 }

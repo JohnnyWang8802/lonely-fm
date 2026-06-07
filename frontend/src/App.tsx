@@ -793,7 +793,7 @@ const VoiceSelectPage = () => {
   return (
     <div className="voice-select-shell custom-voice-select-shell">
       <header className="custom-voice-select-header">
-        <Link to="/" aria-label="返回 Lonely FM 首页"><Logo /></Link>
+        <Link className="home-logo-link" to="/" aria-label="返回 Lonely FM 首页"><Logo /></Link>
         <div className="account-menu" ref={accountMenuRef}>
           <button
             className="account-avatar custom-avatar"

@@ -1,7 +1,9 @@
 import asyncio
 
 from fastapi import FastAPI
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 
 from config import get_settings
 from routers.http import router as http_router
@@ -22,6 +24,14 @@ app.add_middleware(
 
 app.include_router(http_router, prefix="/api")
 app.include_router(ws_router)
+
+
+@app.middleware("http")
+async def allow_private_network_access(request: Request, call_next) -> Response:
+    response = await call_next(request)
+    if request.headers.get("access-control-request-private-network") == "true":
+        response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
 
 
 @app.on_event("startup")

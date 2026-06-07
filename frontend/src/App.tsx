@@ -17,7 +17,7 @@ import {
   Terminal,
   Users
 } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import TalkPage from "./components/TalkPage";
 import { useTypewriter } from "./hooks/useTypewriter";
@@ -64,110 +64,212 @@ const MarketingNav = () => (
   </header>
 );
 
-const InfoPage = ({
-  kicker,
-  title,
-  lead,
-  cards,
-  children
-}: {
-  kicker: string;
-  title: string;
-  lead: string;
-  cards: Array<{ title: string; body: string }>;
-  children?: ReactNode;
-}) => (
-  <div className="info-shell">
+const BACKGROUND_POINTS = [
+  {
+    icon: Radio,
+    title: "孤独不止一种",
+    body: "它可能在深夜、在通勤路上、在一个人的房间里出现，也可能只是突然想有人听一会儿。Lonely FM 先承认这些时刻，而不急着给建议。"
+  },
+  {
+    icon: Mic2,
+    title: "开口就是一道坎",
+    body: "打字要先组织语言，专业咨询又显得太重。把入口做成一通电话，是想让人用最自然的方式开始——说一句就好。"
+  },
+  {
+    icon: ShieldCheck,
+    title: "陪伴也要有边界",
+    body: "它不替代医疗，也不制造依赖。访客离开即不留痕，登录后的记忆由你决定保留或删除——让温暖和安全感同时成立。"
+  }
+];
+
+const TECHNOLOGY_STEPS = [
+  {
+    icon: Terminal,
+    title: "本地 Gemma 4 优先",
+    body: "优先检测用户电脑上的 Ollama / Gemma 4，兼容可用的本地模型标签。这样更私密，也更适合低成本、可持续的 AI for Good 场景。"
+  },
+  {
+    icon: Cloud,
+    title: "云端 API 作为补充",
+    body: "没有本地模型，或需要在手机、平板、临时设备上测试时，用户可以输入自己的 Gemma 4 API key，保留第二条可用路径。"
+  },
+  {
+    icon: Headphones,
+    title: "实时语音链路",
+    body: "前端处理麦克风、VAD、连接中和轮流说话；后端把识别文本交给 Gemma 4，再交给情绪化 TTS，尽量缩短沉默和等待。"
+  },
+  {
+    icon: ShieldCheck,
+    title: "记忆按账号隔离",
+    body: "Supabase 负责登录和可删除记忆。访客会话不留长期记录，登录用户的记忆只服务于自己的下一次对话。"
+  }
+];
+
+const BackgroundPage = () => (
+  <div className="info-shell narrative-shell">
     <MarketingNav />
-    <main className="info-main">
-      <section className="info-hero">
-        <p className="section-eyebrow">{kicker}</p>
-        <h1>{title}</h1>
-        <p>{lead}</p>
+    <main className="narrative-main">
+      <section className="narrative-hero">
+        <div>
+          <p className="section-eyebrow">Background</p>
+          <h1>
+            <span>Lonely FM 想解决的，</span>
+            <span>不是无聊，是无人可说。</span>
+          </h1>
+        </div>
+        <p>
+          很多低落不发生在医院或咨询室，而是在深夜、独居、疲惫、下班后的房间里。那一刻，人需要的不是复杂的功能，而是一个愿意先听完、能接住情绪的声音。
+        </p>
       </section>
-      <section className="info-card-grid" aria-label={kicker}>
-        {cards.map((card) => (
-          <article className="info-card" key={card.title}>
-            <h2>{card.title}</h2>
-            <p>{card.body}</p>
-          </article>
-        ))}
+
+      <section className="narrative-feature-grid" aria-label="背景与痛点">
+        {BACKGROUND_POINTS.map((point, index) => {
+          const Icon = point.icon;
+          return (
+            <article className="narrative-feature" key={point.title}>
+              <div className="narrative-feature-top">
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <Icon size={22} />
+              </div>
+              <h2>{point.title}</h2>
+              <p>{point.body}</p>
+            </article>
+          );
+        })}
       </section>
-      {children}
+
+      <section className="narrative-closing-band" aria-label="产品背景总结">
+        <p>从一句话开始，而不是从一张表单开始。</p>
+        <span>这就是 Lonely FM 的产品背景。</span>
+      </section>
     </main>
   </div>
 );
 
-const BackgroundPage = () => (
-  <InfoPage
-    kicker="Background"
-    title="Lonely FM 想解决的，不是无聊，是无人可说。"
-    lead="很多人的低落时刻不是发生在医院或咨询室，而是在深夜、独居、疲惫、下班后的房间里。那一刻，人需要的不是复杂功能，而是一个愿意先听完、能接住情绪的声音。"
-    cards={[
-      {
-        title: "痛点一：没人能马上听",
-        body: "孤独和低落往往来得突然，但现实中的朋友、家人和专业支持不一定刚好在线。用户需要一个低门槛、随时能开始的陪伴入口。"
-      },
-      {
-        title: "痛点二：聊天框太冷",
-        body: "文字对话容易变成问答和客服感。Lonely FM 用语音、停顿和节奏，让陪伴更接近一次真实通话，而不是再多一个消息窗口。"
-      },
-      {
-        title: "痛点三：长期关系会断",
-        body: "每次重新介绍自己会消耗信任。登录后，用户愿意留下的记忆会被保存，林屿和阿婉能在下一次继续理解这个人。"
-      }
-    ]}
-  />
+const TechnologyPage = () => (
+  <div className="info-shell narrative-shell">
+    <MarketingNav />
+    <main className="narrative-main">
+      <section className="narrative-hero">
+        <div>
+          <p className="section-eyebrow">Technology</p>
+          <h1>
+            <span>本地 Gemma 4 优先，</span>
+            <span>云端能力可选。</span>
+          </h1>
+        </div>
+        <p>
+          技术路线以可获得性、隐私和演示稳定性为核心：能在用户自己的电脑上运行，就优先使用本地 Gemma 4；需要移动设备或更方便测试时，再提供云端 API 选项。
+        </p>
+      </section>
+
+      <section className="technology-stack" aria-label="技术路线">
+        {TECHNOLOGY_STEPS.map((step, index) => {
+          const Icon = step.icon;
+          return (
+            <article className="technology-step" key={step.title}>
+              <span className="technology-step-index">{String(index + 1).padStart(2, "0")}</span>
+              <Icon size={24} />
+              <h2>{step.title}</h2>
+              <p>{step.body}</p>
+            </article>
+          );
+        })}
+      </section>
+
+      <section className="technology-architecture" aria-label="技术架构">
+        <div className="technology-node">
+          <span>Client</span>
+          <strong>浏览器实时语音</strong>
+          <p>麦克风、VAD、连接状态</p>
+        </div>
+        <ArrowRight className="technology-arrow" size={22} />
+        <div className="technology-node">
+          <span>Gemma 4</span>
+          <strong>本地优先 / 云端补充</strong>
+          <p>Ollama 或用户自己的 API key</p>
+        </div>
+        <ArrowRight className="technology-arrow" size={22} />
+        <div className="technology-node">
+          <span>Memory</span>
+          <strong>可删除的长期记忆</strong>
+          <p>按账号隔离，访客不保存</p>
+        </div>
+      </section>
+    </main>
+  </div>
 );
 
-const TechnologyPage = () => (
-  <InfoPage
-    kicker="Technology"
-    title="本地 Gemma 4 优先，云端能力可选。"
-    lead="技术路线以 AI for Good 的可获得性和隐私为核心：能在用户自己的电脑上运行，就优先使用本地 Gemma 4；需要移动设备或更方便测试时，再提供云端 API 选项。"
-    cards={[
-      {
-        title: "1. 大模型",
-        body: "优先检测用户本地 Ollama 中的 Gemma 4，并兼容不同参数版本；没有本地模型时，用户可以选择使用自己的 Gemma 4 云端 API key。"
-      },
-      {
-        title: "2. 实时语音",
-        body: "前端负责麦克风、VAD 轮流说话判断和连接状态；后端把识别文本交给 Gemma 4，再用情绪化 TTS 合成更自然的回应。"
-      },
-      {
-        title: "3. 记忆与边界",
-        body: "Supabase 负责登录和可删除记忆。访客不会保存长期记忆，登录用户的记忆按账号隔离，用来支持连续陪伴。"
-      }
-    ]}
-  />
-);
+const TEAM_MEMBERS = [
+  {
+    name: "Johnny Wang",
+    role: "产品方向 / 体验设计 / 演示叙事",
+    body: "把 Lonely FM 的定位、交互、视觉和评审表达串起来，让它不是一个临时 Demo，而是一个能被理解、能被试用、也能被记住的 AI for Good 产品。",
+    focus: ["语音陪伴产品定义", "极简交互与视觉系统", "黑客松演示叙事"]
+  },
+  {
+    name: "Tim Tsui",
+    role: "技术协作 / 模型验证 / 本地部署",
+    body: "负责协作验证 Gemma 4、本地 Ollama 使用路径和真实测试流程，确保队友、评委和不同设备上的体验尽可能稳定、清楚、可复现。",
+    focus: ["Gemma 4 本地测试", "部署与使用路径", "跨设备测试反馈"]
+  }
+];
 
 const TeamPage = () => (
-  <InfoPage
-    kicker="Team"
-    title="一个小团队，做一个能被认真使用的声音。"
-    lead="Lonely FM 由 Johnny Wang 和 Tim Tsui 共同完成。我们的目标不是做一个炫技 Demo，而是把语音陪伴、记忆和本地 Gemma 4 组合成评委和真实用户都能试用的产品。"
-    cards={[
-      {
-        title: "Johnny Wang",
-        body: "负责产品方向、体验设计、前端界面和演示叙事，把 Lonely FM 做成一个极简但有温度的语音陪伴产品。"
-      },
-      {
-        title: "Tim Tsui",
-        body: "负责技术协作、模型测试和本地部署验证，确保队友、评委和不同设备上的测试流程尽可能稳定。"
-      },
-      {
-        title: "共同目标",
-        body: "用 Gemma 4 做一个真正面向孤独人群的 AI for Good 项目：可访问、可持续、尊重隐私，也尊重人的情绪。"
-      }
-    ]}
-  >
-    <section className="info-team-strip" aria-label="团队成员">
-      <Users size={22} />
-      <span>Johnny Wang</span>
-      <span>Tim Tsui</span>
-    </section>
-  </InfoPage>
+  <div className="info-shell team-shell">
+    <MarketingNav />
+    <main className="team-page-main">
+      <section className="team-page-hero">
+        <div>
+          <p className="section-eyebrow">Team</p>
+          <h1>
+            <span>两个人，把孤独时刻</span>
+            <span>做成一通可接起的声音。</span>
+          </h1>
+        </div>
+        <div className="team-page-lead">
+          <p>
+            Lonely FM 由 Johnny Wang 和 Tim Tsui 共同完成。我们把产品、设计、模型、语音和演示串成一个可被真实使用的作品。
+          </p>
+          <div className="team-page-meta" aria-label="团队关键词">
+            <span>AI for Good</span>
+            <span>Gemma 4</span>
+            <span>Voice first</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="team-member-grid" aria-label="团队成员">
+        {TEAM_MEMBERS.map((member, index) => (
+          <article className="team-member-panel" key={member.name}>
+            <div className="team-member-header">
+              <span className="team-member-index">{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h2>{member.name}</h2>
+                <p className="team-member-role">{member.role}</p>
+              </div>
+            </div>
+            <p className="team-member-body">{member.body}</p>
+            <div className="team-member-focus" aria-label={`${member.name} 负责方向`}>
+              {member.focus.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="team-goal-band" aria-label="共同目标">
+        <div className="team-goal-label">
+          <Users size={22} />
+          <span>共同目标</span>
+        </div>
+        <p>
+          用 Gemma 4 做一个真正面向孤独人群的陪伴工具：可访问、可持续、尊重隐私，也尊重人的情绪。评委看到的是技术路线，用户感受到的是有人认真听。
+        </p>
+      </section>
+    </main>
+  </div>
 );
 
 const HERO_LINE = "你好。先别急着说得完整 —— 挑最想说的那一句就好。今晚，想从哪里开始？";
@@ -323,7 +425,7 @@ const HomePage = () => {
         </section>
 
         <section className="home-principles" id="good" aria-label="陪伴方式">
-          <article className="principle-card principle-card-primary">
+          <article className="principle-card">
             <Mic2 size={22} />
             <h3>先听完，再回应</h3>
             <p>用自然的轮流和停顿感知减少抢话，让沉默、停顿和犹豫都被尊重。</p>
@@ -440,7 +542,6 @@ const LoginPage = () => {
       setResendCooldown(LOGIN_EMAIL_COOLDOWN_SECONDS);
       setStatus("登录邮件已发送。请打开邮箱，点击邮件里的确认链接完成登录。");
     } catch (error) {
-      console.error("Supabase email login failed", error);
       setStatus(getReadableAuthError(error));
     } finally {
       setSubmitting(false);

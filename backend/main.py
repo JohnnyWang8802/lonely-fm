@@ -26,12 +26,29 @@ app.include_router(http_router, prefix="/api")
 app.include_router(ws_router)
 
 
-@app.middleware("http")
-async def allow_private_network_access(request: Request, call_next) -> Response:
-    response = await call_next(request)
-    if request.headers.get("access-control-request-private-network") == "true":
-        response.headers["Access-Control-Allow-Private-Network"] = "true"
-    return response
+class PrivateNetworkMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        headers_dict = {k.decode("latin-1").lower(): v.decode("latin-1") for k, v in scope.get("headers", [])}
+        
+        async def send_wrapper(message):
+            if message["type"] == "http.response.start":
+                if headers_dict.get("access-control-request-private-network") == "true":
+                    headers = list(message.get("headers", []))
+                    headers.append((b"access-control-allow-private-network", b"true"))
+                    message["headers"] = headers
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
+
+
+app.add_middleware(PrivateNetworkMiddleware)
 
 
 @app.on_event("startup")

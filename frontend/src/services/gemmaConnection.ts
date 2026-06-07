@@ -23,45 +23,51 @@ const isGemma4Model = (value: string) => {
 };
 
 const checkLocalBackendGemma = async (signal: AbortSignal): Promise<LocalGemmaCheck | null> => {
-  try {
-    const response = await fetch(getApiUrl("/api/gemma/status"), {
-      cache: "no-store",
-      signal
-    });
-    if (!response.ok) {
-      return {
-        ok: false,
-        ollamaAvailable: false,
-        modelAvailable: false,
-        models: [],
-        error: `${LOCAL_BACKEND_LABEL} 返回 ${response.status}`,
-        setupHint: "请先启动 Lonely FM 本地后端，再重新检测。"
-      };
+  const hosts = ["127.0.0.1", "localhost"];
+  const ports = [8001, 8000];
+
+  for (const host of hosts) {
+    for (const port of ports) {
+      try {
+        const response = await fetch(`http://${host}:${port}/api/gemma/status`, {
+          cache: "no-store",
+          signal
+        });
+        if (!response.ok) continue;
+
+        const data = (await response.json()) as {
+          available?: boolean;
+          model?: string;
+          selected_model?: string;
+          models?: string[];
+          error?: string;
+        };
+        const models = Array.isArray(data.models) ? data.models.filter(Boolean) : [];
+        const selectedModel = data.selected_model || models.find(isGemma4Model) || data.model;
+        const modelAvailable = Boolean(data.available && selectedModel && isGemma4Model(selectedModel));
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("LONELY_FM_LOCAL_PORT", String(port));
+          localStorage.setItem("LONELY_FM_LOCAL_HOST", host);
+        }
+
+        return {
+          ok: modelAvailable,
+          ollamaAvailable: true,
+          modelAvailable,
+          selectedModel,
+          models,
+          error: modelAvailable ? undefined : data.error || "本地后端没有检测到 Gemma 4 模型",
+          setupHint: modelAvailable
+            ? undefined
+            : "请确认 Ollama 已启动，并安装 gemma4:e4b、gemma4:12b-mlx 或 gemma4:21b 中任意一个。"
+        };
+      } catch {
+        // Ignore and try next combination
+      }
     }
-    const data = (await response.json()) as {
-      available?: boolean;
-      model?: string;
-      selected_model?: string;
-      models?: string[];
-      error?: string;
-    };
-    const models = Array.isArray(data.models) ? data.models.filter(Boolean) : [];
-    const selectedModel = data.selected_model || models.find(isGemma4Model) || data.model;
-    const modelAvailable = Boolean(data.available && selectedModel && isGemma4Model(selectedModel));
-    return {
-      ok: modelAvailable,
-      ollamaAvailable: true,
-      modelAvailable,
-      selectedModel,
-      models,
-      error: modelAvailable ? undefined : data.error || "本地后端没有检测到 Gemma 4 模型",
-      setupHint: modelAvailable
-        ? undefined
-        : "请确认 Ollama 已启动，并安装 gemma4:e4b、gemma4:12b-mlx 或 gemma4:21b 中任意一个。"
-    };
-  } catch {
-    return null;
   }
+  return null;
 };
 
 export const checkLocalGemma = async (): Promise<LocalGemmaCheck> => {

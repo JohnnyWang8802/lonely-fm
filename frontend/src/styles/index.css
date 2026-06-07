@@ -2923,8 +2923,9 @@ svg {
   width: 39%;
   height: 39%;
   border-radius: 50%;
-  border: 1px solid rgba(216, 220, 181, 0.52);
-  background: rgba(213, 220, 174, 0.09);
+  border: 1.5px solid rgba(216, 220, 181, 0.72);
+  background: rgba(213, 220, 174, 0.13);
+  box-shadow: 0 0 34px rgba(224, 156, 158, 0.12);
   opacity: 0;
   transform: scale(1);
   pointer-events: none;
@@ -2954,11 +2955,11 @@ svg {
 
 .restored-orb.is-listening .restored-orb-ripple,
 .restored-orb.is-speaking .restored-orb-ripple {
-  animation: restored-orb-ripple 2.35s cubic-bezier(0.22, 0.78, 0.34, 1) infinite;
+  animation: restored-orb-ripple 2.05s cubic-bezier(0.24, 0.74, 0.34, 1) infinite;
 }
 
 .restored-orb.is-speaking .restored-orb-ripple {
-  animation-duration: 1.72s;
+  animation-duration: 1.46s;
 }
 
 .restored-orb-ripple-two {
@@ -2975,11 +2976,11 @@ svg {
     transform: scale(1);
   }
   58% {
-    opacity: calc(var(--ripple-opacity, 0.2) * 0.55);
+    opacity: calc(var(--ripple-opacity, 0.2) * 0.62);
   }
   100% {
     opacity: 0;
-    transform: scale(2.7);
+    transform: scale(2.42);
   }
 }
 

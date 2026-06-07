@@ -36,7 +36,7 @@ export const VoiceRecorder = ({ callStatus, elapsedSeconds, level }: VoiceRecord
   const rippleActive = inputVoiceActive || assistantSpeaking;
   const activityLevel = rippleActive ? Math.max(audioLevel, 0.18) : 0;
   const coreScale = 1 + activityLevel * 0.018;
-  const rippleOpacity = 0.18 + activityLevel * 0.24;
+  const rippleOpacity = 0.24 + activityLevel * 0.32;
 
   return (
     <section className="restored-presence" aria-label="语音陪伴入口">

@@ -50,9 +50,9 @@ const Logo = () => (
 
 const MarketingNav = () => (
   <header className="home-nav">
-    <div className="home-logo-link" aria-label="Lonely FM 首页">
+    <Link className="home-logo-link" to="/" aria-label="Lonely FM 首页">
       <Logo />
-    </div>
+    </Link>
     <nav className="home-nav-links" aria-label="主页导航">
       <Link className="home-nav-text-link" to="/background">背景</Link>
       <Link className="home-nav-text-link" to="/technology">技术</Link>
@@ -652,7 +652,7 @@ const GemmaSetupPage = () => {
       const result = await checkLocalGemma();
       setLocalResult(result);
       if (result.ok) {
-        setGemmaConnection(createLocalGemmaConnection(result.selectedModel));
+        setGemmaConnection(createLocalGemmaConnection(result.selectedModel, result.ollamaBaseUrl));
       }
     } finally {
       setChecking(false);
@@ -713,12 +713,22 @@ const GemmaSetupPage = () => {
     navigate("/", { replace: true });
   };
 
+  const localStatusText = checking
+    ? "正在检测这台电脑是否已经启动本地后端和 Ollama..."
+    : localResult?.ok
+      ? `已检测到 ${localResult.selectedModel ?? "本地 Gemma 4"}，可以进入频道。`
+      : localResult?.modelAvailable && !localResult.backendAvailable
+        ? `已检测到 ${localResult.selectedModel ?? "本地 Gemma 4"}，还需要启动 Lonely FM 本地后端。`
+        : localResult?.ollamaAvailable
+          ? "Ollama 已启动，但没有找到可用的 Gemma 4。"
+          : "没有检测到可用的本地 Gemma 4。";
+
   return (
     <div className="setup-shell">
       <header className="setup-header">
-        <div className="home-logo-link" aria-label="Lonely FM">
+        <Link className="home-logo-link" to="/" aria-label="Lonely FM">
           <Logo />
-        </div>
+        </Link>
         <button className="setup-quiet-button" type="button" onClick={leaveGuest}>
           返回首页
         </button>
@@ -742,13 +752,7 @@ const GemmaSetupPage = () => {
               </span>
               <div>
                 <h2>本地 Ollama / Gemma 4</h2>
-                <p>
-                  {checking
-                    ? "正在检测这台电脑是否已经启动本地后端和 Ollama..."
-                    : localResult?.ok
-                      ? `已检测到 ${localResult.selectedModel ?? "本地 Gemma 4"}，可以进入频道。`
-                      : "没有检测到可用的本地 Gemma 4。"}
-                </p>
+                <p>{localStatusText}</p>
               </div>
             </div>
 
@@ -763,8 +767,9 @@ const GemmaSetupPage = () => {
                 {localResult.setupHint && <p className="setup-hint">{localResult.setupHint}</p>}
                 <div className="setup-step-list" aria-label="本地连接步骤">
                   <span>1. 启动 Ollama。</span>
-                  <span>2. 启动 Lonely FM 本地后端。</span>
-                  <span>3. 回到这里重新检测。</span>
+                  <span>2. 安装或确认本地 Gemma 4 模型。</span>
+                  <span>3. 启动 Lonely FM 本地后端。</span>
+                  <span>4. 回到这里重新检测。</span>
                 </div>
                 <div className="setup-command">
                   <code>{installCommand}</code>
@@ -779,6 +784,9 @@ const GemmaSetupPage = () => {
                     {copied ? "已复制" : "复制"}
                   </button>
                 </div>
+                {localResult.modelAvailable && !localResult.backendAvailable && (
+                  <p className="setup-hint">Gemma 模型已经在这台电脑上了；现在只差本地后端把网页和 Ollama 串起来。</p>
+                )}
                 {!localResult.ollamaAvailable && (
                   <div className="setup-command setup-command-subtle">
                     <code>{originCommand}</code>
@@ -894,7 +902,7 @@ const VoiceSelectPage = () => {
   return (
     <div className="voice-select-shell custom-voice-select-shell">
       <header className="custom-voice-select-header">
-        <Link to="/" aria-label="返回 Lonely FM 首页"><Logo /></Link>
+        <Link className="home-logo-link" to="/" aria-label="返回 Lonely FM 首页"><Logo /></Link>
         <div className="account-menu" ref={accountMenuRef}>
           <button
             className="account-avatar custom-avatar"

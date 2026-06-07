@@ -1,12 +1,27 @@
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
-const LOCAL_BACKEND_HTTP_BASE = "http://127.0.0.1:8001";
-const LOCAL_BACKEND_WS_BASE = "ws://127.0.0.1:8001";
+const getLocalPort = (): string => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("LONELY_FM_LOCAL_PORT") || "8001";
+  }
+  return "8001";
+};
+
+const getLocalHost = (): string => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("LONELY_FM_LOCAL_HOST") || "127.0.0.1";
+  }
+  return "127.0.0.1";
+};
 
 export const getApiUrl = (path: string): string => {
   const base = import.meta.env.VITE_API_BASE_URL as string | undefined;
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  return `${trimTrailingSlash(base || LOCAL_BACKEND_HTTP_BASE)}${cleanPath}`;
+  if (base) return `${trimTrailingSlash(base)}${cleanPath}`;
+  
+  const host = getLocalHost();
+  const port = getLocalPort();
+  return `http://${host}:${port}${cleanPath}`;
 };
 
 export const getWsUrl = (path: string): string => {
@@ -21,5 +36,7 @@ export const getWsUrl = (path: string): string => {
     return `${trimTrailingSlash(url.toString())}${cleanPath}`;
   }
 
-  return `${LOCAL_BACKEND_WS_BASE}${cleanPath}`;
+  const host = getLocalHost();
+  const port = getLocalPort();
+  return `ws://${host}:${port}${cleanPath}`;
 };

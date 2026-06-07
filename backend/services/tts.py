@@ -72,7 +72,6 @@ class TtsService:
         self._disk_cache_dir = Path(__file__).resolve().parents[2] / ".cache" / "tts"
         self._minimax_stream_disabled_until = 0.0
         self._minimax_stream_failure_count = 0
-        self._minimax_http_disabled_until = 0.0
         self._google_disabled_until = 0.0
         self._common_prewarmed_voice_ids: set[str] = set()
         self._google_tts_client: Any | None = None
@@ -226,7 +225,7 @@ class TtsService:
             # Default keepalive_expiry is 5s — too short, so each turn re-pays the ~2.3s TLS
             # handshake to the MiniMax endpoint. Hold connections open far longer.
             self._http_client = httpx.AsyncClient(
-                timeout=6,
+                timeout=httpx.Timeout(18, connect=6),
                 limits=httpx.Limits(max_keepalive_connections=8, keepalive_expiry=120),
             )
         return self._http_client
@@ -328,11 +327,7 @@ class TtsService:
         voice_id: str | None = None,
     ) -> str | None:
         settings = get_settings()
-        if (
-            not settings.minimax_api_key
-            or not settings.minimax_tts_voice_id
-            or time.monotonic() < self._minimax_http_disabled_until
-        ):
+        if not settings.minimax_api_key or not settings.minimax_tts_voice_id:
             return None
         try:
             voice_shape = self._voice_shape(emotion)
@@ -361,7 +356,7 @@ class TtsService:
                 "Authorization": f"Bearer {settings.minimax_api_key}",
                 "Content-Type": "application/json",
             }
-            response = await self._client().post(settings.minimax_tts_endpoint, headers=headers, json=payload)
+            response = await self._post_minimax_tts(headers, payload)
             response.raise_for_status()
             data = response.json()
 
@@ -376,9 +371,15 @@ class TtsService:
                 raise RuntimeError("MiniMax TTS response contained no audio")
             return base64.b64encode(bytes.fromhex(audio_hex)).decode("ascii")
         except Exception as exc:
-            self._minimax_http_disabled_until = time.monotonic() + 90
             print(f"MiniMax TTS fallback: {exc}")
             return None
+
+    async def _post_minimax_tts(self, headers: dict[str, str], payload: dict[str, Any]) -> httpx.Response:
+        try:
+            return await self._client().post(get_settings().minimax_tts_endpoint, headers=headers, json=payload)
+        except (httpx.ConnectError, httpx.ReadError, httpx.TimeoutException):
+            await asyncio.sleep(0.35)
+            return await self._client().post(get_settings().minimax_tts_endpoint, headers=headers, json=payload)
 
     async def _synthesize_with_minimax_stream(
         self,

@@ -50,9 +50,9 @@ const Logo = () => (
 
 const MarketingNav = () => (
   <header className="home-nav">
-    <div className="home-logo-link" aria-label="Lonely FM 首页">
+    <Link className="home-logo-link" to="/" aria-label="Lonely FM 首页">
       <Logo />
-    </div>
+    </Link>
     <nav className="home-nav-links" aria-label="主页导航">
       <Link className="home-nav-text-link" to="/background">背景</Link>
       <Link className="home-nav-text-link" to="/technology">技术</Link>
@@ -615,9 +615,9 @@ const GemmaSetupPage = () => {
   return (
     <div className="setup-shell">
       <header className="setup-header">
-        <div className="home-logo-link" aria-label="Lonely FM">
+        <Link className="home-logo-link" to="/" aria-label="Lonely FM">
           <Logo />
-        </div>
+        </Link>
         <button className="setup-quiet-button" type="button" onClick={leaveGuest}>
           返回首页
         </button>

@@ -1,7 +1,7 @@
 # Lonely FM（在吗）
 
 Lonely FM is an AI for Good voice companion web app for lonely moments. The MVP is a pure web experience: users press and hold to speak, the backend streams emotion/transcript/AI response events over WebSocket, and the interface presents a calm “late-night radio” companion named 阿晚.
-
+Live Demo：https://youtu.be/RzLeD7CA_Sw
 ## Stack
 
 - Frontend: React 18, TypeScript, Vite, Tailwind CSS v3, Zustand, React Router
